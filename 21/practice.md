@@ -12,7 +12,8 @@ which will most likely cause a coredump,
 and often result in leaked system resources,
 hanged database transactions and other BAD THINGS.
 
-The issue is greatly alleviated with memory overcommit
+The issue is greatly alleviated by
+[memory overcommit](https://en.wikipedia.org/wiki/Memory_overcommitment)
 (apps may allocate more virtual memory than there's
 DRAM+swap available) but it's often not available
 (e.g. not available on all OSes or disabled due
@@ -20,13 +21,13 @@ to reliability issues) so in any case verifying
 `malloc` is a good practice.
 
 In this workshop we'll make a simple checker
-which will detect this behavior at large scale and
-use it to find issues in popular OSS packages.
+which will be capable of detecting problematic programs at
+large scale. We'll then use it to find issues in popular OSS packages.
 
 # Initial app
 
 So let's start with the simplest possible implementation
-in branch `workshop/1` of [failing-malloc repo](https://github.com/yugr/failing-malloc)
+in branch `workshop/1` of [failing-malloc](https://github.com/yugr/failing-malloc) repo:
   * intercept `malloc` via `LD_PRELOAD`
   * on first call collect various data
   * and return `NULL`
@@ -72,9 +73,11 @@ failingmalloc: returning NULL from malloc in '/usr/bin/whoami'
 whoami: cannot find name for user ID 1000
 ```
 
-Ok, looks like at least coreutils are not failing.
+Ok, looks like at least coreutils handle memory exhaustion correctly
+(which is not surprising as they have been a standard verification
+target in past 30+ years).
 
-But let's try something more complicated:
+But more complicated apps do fail:
 ```
 $ LD_PRELOAD=$HOME/src/failing-malloc/bin/libfailingmalloc.so perl -e 'print;'
 failingmalloc: intercepting malloc in '/usr/bin/perl -e print;'
@@ -85,7 +88,7 @@ Segmentation fault (core dumped)
 # Delayed fails
 
 Our checker returns `NULL` on first `malloc` call
-so it can only identify the failure at first `malloc` call.
+so it can only identify issues with the first allocation.
 Let's add a knob to insert `NULL` at arbitrary place.
 
 Usually the easiest way to control instrumenting
@@ -98,13 +101,13 @@ when exactly to return NULL.
 
 Let's verify that it works:
 ```
-$ FAILING_MALLOC_START_AFTER=999 LD_PRELOAD=$HOME/src/failing-malloc/bin/libfailingmalloc.so whoami
+$ FAILING_MALLOC_FAIL_AFTER=999 LD_PRELOAD=$HOME/src/failing-malloc/bin/libfailingmalloc.so whoami
 failingmalloc: intercepting malloc in '/usr/bin/whoami'
 yugr
 ```
 
 Great! Now we can run any app with many random values
-of `FAILING_MALLOC_START_AFTER` to see if it fails somewhere:
+of `FAILING_MALLOC_FAIL_AFTER` to see if it fails somewhere:
 ```
 $ while true; do
   export FAILING_MALLOC_FAIL_AFTER=$((`od -vAn -N1 -tu1 < /dev/urandom` >> 5))
@@ -207,7 +210,6 @@ dbgsyms do not contain the source code so we need to download it manually:
 ```
 $ apt-get source acl
 $ cd acl-2.2.53
-$ vim libacl/acl_free.c +30
 ```
 
 Now we can instruct gdb where to find sources via
@@ -229,6 +231,7 @@ $1 = (acl_obj *) 0x0
 ```
 
 Looks like we are accessing a `NULL` object in `acl_obj_p`!
+Let's see why this happens:
 
 ```
 (gdb) fr 1
@@ -254,15 +257,19 @@ in acl's bugtracker.
 
 # Testing at larger scale
 
-Now, of course manually applying checkers to various programs is a tiresome and boring task.
-So what can we do to make it interesting?
+Now, of course manually applying checkers to various programs
+is a tiresome and boring task.
+What can we do to make it more interesting?
 
 Few simple ideas:
   * apply your checker to each app on Linux:
-    * run without arguments and stdin redirected from /dev/null (do this only in containers to avoid damaging your system!)
+    * run without arguments and stdin redirected from `/dev/null`
+      (do this only in containers to avoid damaging your system!)
     * run with `--help` or `-h`
-  * (for LD_PRELOAD-based checkers, not for the faint hearted!) boot complete Linux system with your checker preloaded
-  * run some large system benchmark under your checker (e.g. Phoronix testsuite)
+  * (for LD_PRELOAD-based checkers, not for the faint hearted!) boot complete Linux system
+    with your checker preloaded
+  * run some large system benchmark under your checker
+    (e.g. [Phoronix testsuite](https://www.phoronix-test-suite.com/))
 
 Unfortunately this is all very shallow and won't result too much loot^W bugs found.
 
@@ -306,12 +313,14 @@ failingmalloc: intercepting malloc in '/usr/bin/make check' (fail after 0 allocs
 failingmalloc: returning NULL from malloc in '/usr/bin/make check'
 Segmentation fault (core dumped)
 ```
-Ouch, our checker has tried inserting errors into make process and successfully failed it!
-On a positive side this means that make also has bugs that we can fix but
-currently we just want to ignore them and proceed with libacl testing.
+Ouch, our checker has tried inserting errors into top-level `make` process
+and successfully failed it! On a positive side this means that make
+also has bugs that we can pursue later on but
+for now we just want to ignore them and proceed with libacl testing.
 
-Let's update our checker once again, this time teaching it to not instrument system programs
-and libraries. This is done in branch `workshop/3`.
+Let's update our checker once again, this time teaching it to
+not instrument system programs and libraries.
+This is done in branch `workshop/3`.
 
 Now finally results are expected:
 ```
@@ -348,7 +357,8 @@ I selected Debian as it has the most packages and has convenient automation tool
 The main problem is that Debian build system is aimed at _building_ packages, not _testing_ them
 so it does not have builtin support for running unit tests :(
 But with some effort we can add some clever hooks into their build system and run tests outselves.
-I've done this in debian_pkg_test project. We'll now use it to automate out checker.
+I've done this in [debian_pkg_test](https://github.com/yugr/debian_pkg_test) project.
+We'll now use it to automate out checker.
 
 Firstly we need to make a small adaptation failing-malloc to massive batch runs,
 namely teach it to autodetect crashes and register them in dedicated place.
@@ -356,8 +366,10 @@ This is done in branch `workshop/4` by adding support for `FAILING_MALLOC_LOGFIL
 environment variable and installing signal handler prior to retuning bad value
 from `malloc`.
 
+_TODO: use dedicated container with preinstalled debian_pkg_test_
+
 To set up debian_pkg_test we follow instructions
-in [debian_pkg_test/README.md](https://github.com/yugr/debian_pkg_test#setting-up)
+in it's [README.md](https://github.com/yugr/debian_pkg_test#setting-up)
 and use pre-cooked integration from
 [examples/failingmalloc](https://github.com/yugr/debian_pkg_test/examples/failing-malloc).
 ```
@@ -379,14 +391,14 @@ Please report to acl-devel@nongnu.org
 ...
 ```
 
-TODO: fix hang in autopkgtest's `example` test.
+_TODO: fix hang in autopkgtest's `example` test_
 
 Debian_pkg_test stored all the necessary info:
 failing-malloc reports, syslog and build log
 to `test_pkgs.1/acl` folder. We can make sure
 that expected bugs have been found:
 ```
-$ cat test_pkgs.8/acl/output/failingmalloc.log
+$ cat test_pkgs.1/acl/output/failingmalloc.log
 failingmalloc: intercepting malloc in '/build/acl-2.2.53/.libs/setfacl -m u:bin:rw f'
 failingmalloc: intercepting malloc in '/build/acl-2.2.53/.libs/setfacl -m u:bin:rw f' (fail after 0 allocs)
 failingmalloc: returning NULL from malloc in '/build/acl-2.2.53/.libs/setfacl -m u:bin:rw f'
@@ -399,6 +411,8 @@ failingmalloc: returning NULL from malloc in '/build/acl-2.2.53/.libs/getfacl --
 failingmalloc: segmentation fault in '/build/acl-2.2.53/.libs/getfacl --omit-header h/x'
 ...
 ```
+(you may need to need to change to some other `test_pkgs.N`,
+depending on history of previous runs).
 
 # Further work
 
@@ -406,10 +420,10 @@ At this point the checker is more or less ready
 and we can unleash it's power to the world
 and start filing bugreports and PRs.
 
-At this point you can pursue several directions.
+From here you can pursue several directions.
 
-Firstly you can try applying the checker to other packages!
-After quick skimming from packages in
+Firstly you could try applying the checker to other OSS programs.
+After quick skimming the packages from
 [Debian package rating](https://popcon.debian.org/by_vote)
 I saw segfaults in
   * libfastjson
@@ -427,6 +441,9 @@ I saw segfaults in
 If that sounds too boring, try improving the existing checker:
   * intercept other alloc functions like `realloc` or `aligned_alloc`
     (would also be nice to figure out why `calloc` interception does not work!)
+    and `operator new` (in theory C++ insists on throwing `std::bad_cast`
+    on failed allocation but many C++ programs are compiled with `-fno-exceptions`
+    and simply return `NULL` on OOM)
   * add support for control via single env variable `FAILING_MALLOC_OPTIONS`
     (verbosity, logfile, file pattern to enable/disable fails, etc.)
   * make library scan more efficient (used interval tree instead of linear search)
@@ -441,13 +458,15 @@ Finally if the whole runtime checking idea inspires you,
 try writing other simple checkers e.g.
   * find intersecting ranges in `memcpy` or `strcpy`
   * `memcpy`/`memcmp`/`malloc`/`calloc` of 0 bytes
-or come up with your own idea and try it out on Debian!
+or, better yet, try to come up with your own idea and
+verify it's usefulness via debian_pkg_test.
 
 # (Backup)
 
 A reprocase from gpg.
 
 ```
+$ apt-get install gpg-dbgsym libgcrypt20-dbgsym
 $ gdb -ex 'set startup-with-shell off' -ex "set environment LD_PRELOAD=$HOME/src/debian_pkg_test/pbuilder-shared/failing-malloc/bin/libfailingmalloc.so" -ex r --args /usr/bin/gpg
 ...
 failingmalloc: intercepting malloc in '/usr/bin/gpg' (fail after 0 allocs)
@@ -461,14 +480,15 @@ __GI_raise (sig=sig@entry=6) at ../sysdeps/unix/sysv/linux/raise.c:50
 (gdb) bt
 #0  __GI_raise (sig=sig@entry=6) at ../sysdeps/unix/sysv/linux/raise.c:50
 #1  0x00007ffff7ae2859 in __GI_abort () at abort.c:79
-#2  0x00007ffff7d47826 in ?? () from /lib/x86_64-linux-gnu/libgcrypt.so.20
-#3  0x00007ffff7d4a169 in ?? () from /lib/x86_64-linux-gnu/libgcrypt.so.20
-#4  0x00007ffff7e0eae7 in ?? () from /lib/x86_64-linux-gnu/libgcrypt.so.20
-#5  0x00007ffff7e0eb6b in ?? () from /lib/x86_64-linux-gnu/libgcrypt.so.20
-#6  0x00007ffff7d48a1a in ?? () from /lib/x86_64-linux-gnu/libgcrypt.so.20
-#7  0x00007ffff7d48c55 in ?? () from /lib/x86_64-linux-gnu/libgcrypt.so.20
-#8  0x000055555560227b in ?? ()
-#9  0x0000555555564ecf in ?? ()
-#10 0x00007ffff7ae40b3 in __libc_start_main (main=0x555555564e00, argc=1, argv=0x7fffffffdd98, init=<optimized out>, fini=<optimized out>, rtld_fini=<optimized out>, stack_end=0x7fffffffdd88) at ../csu/libc-start.c:308
-#11 0x000055555556c05e in ?? ()
+#2  0x00007ffff7d47826 in _gcry_fatal_error (rc=32849, text=0x7ffff7c74814 "No such file or directory", text@entry=0x0) at ../../src/misc.c:91
+#3  0x00007ffff7d4a169 in _gcry_xmalloc (n=n@entry=24) at ../../src/global.c:1120
+#4  0x00007ffff7e0eae7 in _gcry_mpi_alloc (nlimbs=nlimbs@entry=1) at ../../mpi/mpiutil.c:84
+#5  0x00007ffff7e0eb6b in _gcry_mpi_alloc_set_ui (u=<optimized out>) at ../../mpi/mpiutil.c:565
+#6  _gcry_mpi_init () at ../../mpi/mpiutil.c:63
+#7  0x00007ffff7d48a1a in global_init () at ../../src/global.c:133
+#8  0x00007ffff7d48c55 in global_init () at ../../src/global.c:246
+#9  _gcry_check_version (req_version=req_version@entry=0x55555563831b "1.7.0") at ../../src/global.c:244
+#10 0x00007ffff7d456f9 in gcry_check_version (req_version=req_version@entry=0x55555563831b "1.7.0") at ../../src/visibility.c:69
+#11 0x000055555560227b in _init_common_subsystems (errsource=<optimized out>, argcp=<optimized out>, argvp=<optimized out>) at ../../common/init.c:183
+#12 0x0000555555564ecf in main (argc=<optimized out>, argv=<optimized out>) at ../../g10/gpg.c:2348
 ```
