@@ -436,7 +436,6 @@ I saw segfaults in
   * acl
   * ligogg
   * apt
-  * gpg
 
 If that sounds too boring, try improving the existing checker:
   * intercept other alloc functions like `realloc` or `aligned_alloc`
