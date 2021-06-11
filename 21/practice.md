@@ -208,6 +208,9 @@ $ gdb ...
 
 dbgsyms do not contain the source code so we need to download it manually:
 ```
+$ dpkg -S getfacl
+acl: /usr/share/man/man1/getfacl.1.gz
+acl: /bin/getfacl
 $ apt-get source acl
 $ cd acl-2.2.53
 ```
