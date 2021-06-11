@@ -394,8 +394,6 @@ Please report to acl-devel@nongnu.org
 ...
 ```
 
-_TODO: fix hang in autopkgtest's `example` test_
-
 Debian_pkg_test stored all the necessary info:
 failing-malloc reports, syslog and build log
 to `test_pkgs.1/acl` folder. We can make sure
