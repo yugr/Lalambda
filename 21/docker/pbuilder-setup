@@ -1,0 +1,9 @@
+set -eu
+
+# Setup for debian_pkg_test
+apt-get install -y git ca-certificates lsb-release
+git clone https://github.com/yugr/debian_pkg_test
+debian_pkg_test/pbuilder-shared/initialize-container
+
+# Install common dev packages
+apt-get install -y autoconf automake autopoint autotools-dev bsdmainutils debhelper dh-autoreconf dh-strip-nondeterminism file gettext libtool m4 man-db tzdata

@@ -24,13 +24,44 @@ In this workshop we'll make a simple checker
 which will be capable of detecting problematic programs at
 large scale. We'll then use it to find issues in popular OSS packages.
 
+# Prerequisites
+
+We'll be using Docker for our experiments.
+To install Docker on Ubuntu please follow the guide
+at https://docs.docker.com/engine/install/ubuntu/
+
+To avoid the need to run Docker commands with `sudo`, run
+```
+$ sudo usermod -aG docker $USER
+$ newgrp docker
+```
+
+Then go to the `docker` subdirectory and run
+```
+$ sudo docker build -t yugr/failing-malloc .
+```
+
+Finally create a local workspace on you host system
+and start docker
+```
+$ mkdir $HOME/work
+$ sudo docker run -it --privileged -v $HOME/work:/work yugr/failing-malloc
+```
+(`privileged` is needed due to mounts which will be needed by pbuilder).
+
 # Initial app
 
 So let's start with the simplest possible implementation
-in branch `workshop/1` of [failing-malloc](https://github.com/yugr/failing-malloc) repo:
-  * intercept `malloc` via `LD_PRELOAD`
-  * on first call collect various data
-  * and return `NULL`
+of our checker. For that we'll clone the repo from Github
+and use initial implementation from `workshop/1` branch:
+```
+# cd /work
+# git clone -b workshop/1 https://github.com/yugr/failing-malloc
+```
+This implementation simply
+  * intercepts `malloc` via `LD_PRELOAD`
+  * on first call collects various data
+  * and then blatantly returns `NULL` to the caller
 
 Few points of interest:
   * we protect against programs who run in parallel -
@@ -47,8 +78,10 @@ Few points of interest:
     ([malloc hooks](https://www.gnu.org/software/libc/manual/html_node/Hooks-for-Malloc.html)
     or `__libc_malloc`) for illustrative purposes
 
-We can now run this test on a simple reprocases in example.c:
+We can build checker and run it on a simple unittest in example.c:
 ```
+# make -C failing-malloc
+# make -C failing-malloc check
 failingmalloc: intercepting malloc in '/home/yugr/src/failing-malloc/bin/example-safe 123 456'
 failingmalloc: returning NULL from malloc in '/home/yugr/src/failing-malloc/bin/example-safe 123 456'
 Safe test terminated normally
@@ -57,17 +90,17 @@ failingmalloc: returning NULL from malloc in '/home/yugr/src/failing-malloc/bin/
 Segmentation fault (core dumped)
 Unsafe test failed with 139
 ```
-
 We can see that safe test terminates normally
-and unsafe one (that does not check `malloc` result) crashes.
+and the unsafe one (that does not check `malloc` result) crashes.
 
 We can now try running our checker on real-world programs:
 ```
-$ LD_PRELOAD=$HOME/src/failing-malloc/bin/libfailingmalloc.so ls
+# export LD_LIBRARY_PATH=/work/failing-malloc/bin${LD_LIBRARY_PATH:+:$LD_LIBRARY_PATH}
+# LD_PRELOAD=libfailingmalloc.so ls
 failingmalloc: intercepting malloc in '/usr/bin/ls --color=auto'
 failingmalloc: returning NULL from malloc in '/usr/bin/ls --color=auto'
 ls: memory exhausted
-$ LD_PRELOAD=$HOME/src/failing-malloc/bin/libfailingmalloc.so whoami
+# LD_PRELOAD=libfailingmalloc.so whoami
 failingmalloc: intercepting malloc in '/usr/bin/whoami'
 failingmalloc: returning NULL from malloc in '/usr/bin/whoami'
 whoami: cannot find name for user ID 1000
@@ -79,9 +112,9 @@ target in past 30+ years).
 
 But more complicated apps do fail:
 ```
-$ LD_PRELOAD=$HOME/src/failing-malloc/bin/libfailingmalloc.so perl -e 'print;'
-failingmalloc: intercepting malloc in '/usr/bin/perl -e print;'
-failingmalloc: returning NULL from malloc in '/usr/bin/perl -e print;'
+# LD_PRELOAD=libfailingmalloc.so dpkg
+failingmalloc: intercepting malloc in '/usr/bin/dpkg'
+failingmalloc: returning NULL from malloc in '/usr/bin/dpkg'
 Segmentation fault (core dumped)
 ```
 
@@ -101,47 +134,45 @@ when exactly to return NULL.
 
 Let's verify that it works:
 ```
-$ FAILING_MALLOC_FAIL_AFTER=999 LD_PRELOAD=$HOME/src/failing-malloc/bin/libfailingmalloc.so whoami
+# git -C /work/failing-malloc checkout workshop/2
+# make -C /work/failing-malloc
+# FAILING_MALLOC_FAIL_AFTER=999 LD_PRELOAD=libfailingmalloc.so whoami
 failingmalloc: intercepting malloc in '/usr/bin/whoami'
-yugr
+root
 ```
 
 Great! Now we can run any app with many random values
 of `FAILING_MALLOC_FAIL_AFTER` to see if it fails somewhere:
 ```
-$ while true; do
-  export FAILING_MALLOC_FAIL_AFTER=$((`od -vAn -N1 -tu1 < /dev/urandom` >> 5))
-  LD_PRELOAD=$HOME/src/failing-malloc/bin/libfailingmalloc.so whoami
+# while true; do
+  FAILING_MALLOC_FAIL_AFTER=$((`od -vAn -N1 -tu1 < /dev/urandom` >> 1)) LD_PRELOAD=libfailingmalloc.so whoami
   sleep 0.5
 done
-failingmalloc: intercepting malloc in '/usr/bin/whoami' (fail after 6 allocs)
-yugr
-failingmalloc: intercepting malloc in '/usr/bin/whoami' (fail after 0 allocs)
+failingmalloc: intercepting malloc in '/usr/bin/whoami' (fail after 120 allocs)
+root
+failingmalloc: intercepting malloc in '/usr/bin/whoami' (fail after 65 allocs)
+root
+failingmalloc: intercepting malloc in '/usr/bin/whoami' (fail after 104 allocs)
+root
+failingmalloc: intercepting malloc in '/usr/bin/whoami' (fail after 36 allocs)
 failingmalloc: returning NULL from malloc in '/usr/bin/whoami'
-whoami: cannot find name for user ID 1000
-failingmalloc: intercepting malloc in '/usr/bin/whoami' (fail after 6 allocs)
-yugr
-failingmalloc: intercepting malloc in '/usr/bin/whoami' (fail after 3 allocs)
-yugr
-failingmalloc: intercepting malloc in '/usr/bin/whoami' (fail after 2 allocs)
-yugr
-failingmalloc: intercepting malloc in '/usr/bin/whoami' (fail after 1 allocs)
-yugr
-...
+whoami: cannot find name for user ID 0
 ```
 
 # Analyze bug in real package
 
 Let's try on something less trivial:
 ```
-$ LD_PRELOAD=$HOME/src/failing-malloc/bin/libfailingmalloc.so getfacl /bin/ls
+# apt-get install acl
+# LD_PRELOAD=libfailingmalloc.so getfacl /bin/ls
 failingmalloc: intercepting malloc in '/usr/bin/getfacl /bin/ls' (fail after 0 allocs)
 failingmalloc: returning NULL from malloc in '/usr/bin/getfacl /bin/ls'
 Segmentation fault (core dumped)
 ```
+
 To understand what's going on we can run `gdb`:
 ```
-$ gdb -ex "set environment LD_PRELOAD=$HOME/src/failing-malloc/bin/libfailingmalloc.so" -ex r --args /bin/getfacl /bin/ls
+# gdb -ex 'set environment LD_PRELOAD=libfailingmalloc.so' -ex r --args /bin/getfacl /bin/ls
 ...
 Starting program: /usr/bin/getfacl /bin/ls
 failingmalloc: intercepting malloc in '/usr/bin/bash -c exec /usr/bin/getfacl /bin/ls' (fail after 0 allocs)
@@ -155,7 +186,7 @@ Bash was run under `LD_PRELOAD` and terminated because `malloc` returned `NULL`!
 
 Luckily in new gdbs we can disable this behavior with `startup-with-shell` option:
 ```
-$ gdb -ex 'set startup-with-shell off' -ex "set environment LD_PRELOAD=$HOME/src/failing-malloc/bin/libfailingmalloc.so" -ex r --args /bin/getfacl /bin/ls
+# gdb -ex 'set startup-with-shell off' -ex 'set environment LD_PRELOAD=libfailingmalloc.so' -ex r --args /bin/getfacl /bin/ls
 ...
 Starting program: /usr/bin/getfacl /bin/ls
 failingmalloc: intercepting malloc in '/usr/bin/getfacl /bin/ls' (fail after 0 allocs)
@@ -177,24 +208,16 @@ Program received signal SIGSEGV, Segmentation fault.
 
 Hm, not very helpful... But let's install debug symbols and see if it helps.
 ```
-$ dpkg -S /bin/getfacl
+# dpkg -S /bin/getfacl
 acl: /bin/getfacl
-$ dpkg -S libacl.so.1
+# dpkg -S libacl.so.1
 libacl1:amd64: /usr/lib/x86_64-linux-gnu/libacl.so.1
 libacl1:amd64: /usr/lib/x86_64-linux-gnu/libacl.so.1.1.2253
-$ sudo apt-get install acl-dbgsym libacl1-dbgsym
-```
-
-If dbgsym packages are not found you need to add more repos to your `sources.list`:
-```
-$ sudo apt-key adv --keyserver keyserver.ubuntu.com --recv-keys 428D7C01 C8CAB6595FDFF622
-$ printf "deb http://ddebs.ubuntu.com %s main restricted universe multiverse\n" $(lsb_release -cs){,-updates,-security,-proposed} |  sudo tee -a /etc/apt/sources.list.d/ddebs.list
+# sudo apt-get install acl-dbgsym libacl1-dbgsym
 ```
 
 Now rerun gdb and enjoy a nicely formatted backtrace:
 ```
-$ gdb ...
-...
 (gdb) bt
 #0  0x00007ffff7fa6bb8 in __acl_free_acl_obj (acl_obj_p=0x0) at libacl/acl_free.c:30
 #1  0x00007ffff7fa8408 in acl_from_mode (mode=33261) at libacl/acl_from_mode.c:70
@@ -208,11 +231,10 @@ $ gdb ...
 
 dbgsyms do not contain the source code so we need to download it manually:
 ```
-$ dpkg -S getfacl
+# dpkg -S getfacl
 acl: /usr/share/man/man1/getfacl.1.gz
 acl: /bin/getfacl
-$ apt-get source acl
-$ cd acl-2.2.53
+# apt-get source acl
 ```
 
 Now we can instruct gdb where to find sources via
@@ -269,7 +291,7 @@ Few simple ideas:
     * run without arguments and stdin redirected from `/dev/null`
       (do this only in containers to avoid damaging your system!)
     * run with `--help` or `-h`
-  * (for LD_PRELOAD-based checkers, not for the faint hearted!) boot complete Linux system
+  * (for `LD_PRELOAD`-based checkers, not for the faint hearted!) boot complete Linux system
     with your checker preloaded
   * run some large system benchmark under your checker
     (e.g. [Phoronix testsuite](https://www.phoronix-test-suite.com/))
@@ -280,42 +302,18 @@ A more promising solution is reusing builtin testsuites
 which are available for many open-source packages.
 For example let's try to detect a bug in libacl's unittests:
 ```
-$ cd acl-2.2.53
-$ find | xargs touch -m -r /bin/ls  # Fix clock skew
-$ ./configure
-$ make
-$ LD_PRELOAD=$HOME/src/failing-malloc/bin/libfailingmalloc.so make check
-...
-# TOTAL: 15
-# PASS:  9
-# SKIP:  4
-# XFAIL: 2
-# FAIL:  0
-# XPASS: 0
-# ERROR: 0
-```
+# cd acl-2.2.53
+# find | xargs touch -m -r /bin/ls  # Fix clock skew
+# apt-get install attr-dev
+# ./configure
+# make
 
-Weird, all tests passed. What's going on?
-The clever testwrapper overrides our `LD_PRELOAD`:
-```
-yugr@yugr-VirtualBox:~/src/1/acl-2.2.53$ gr LD_PRELOAD
-test/runwrapper:	export LD_PRELOAD="$PWD/.libs/libtestlookup.so"
-```
-
-Let's fix it for now
-```
-$ sed -r -e 's/^if /if false \&\& /' test/runwrapper
-```
-(btw this illustrates the idea why `LD_PRELOAD` is unreliable
-and we should use `/etc/ld.so.preload` instead).
-
-Now we run into another issue:
-```
-yugr@yugr-VirtualBox:~/src/1/acl-2.2.53$ LD_PRELOAD=$HOME/src/failing-malloc/bin/libfailingmalloc.so make check
+# LD_PRELOAD=libfailingmalloc.so make check
 failingmalloc: intercepting malloc in '/usr/bin/make check' (fail after 0 allocs)
 failingmalloc: returning NULL from malloc in '/usr/bin/make check'
 Segmentation fault (core dumped)
 ```
+
 Ouch, our checker has tried inserting errors into top-level `make` process
 and successfully failed it! On a positive side this means that make
 also has bugs that we can pursue later on but
@@ -323,7 +321,40 @@ for now we just want to ignore them and proceed with libacl testing.
 
 Let's update our checker once again, this time teaching it to
 not instrument system programs and libraries.
-This is done in branch `workshop/3`.
+This is done in branch `workshop/3`:
+```
+# git -C /work/failing-malloc checkout workshop/3
+# make -C /work/failing-malloc
+```
+
+Now rerun the tests:
+```
+# LD_PRELOAD=libfailingmalloc.so make check
+...
+# TOTAL: 15
+# PASS:  12
+# SKIP:  0
+# XFAIL: 2
+# FAIL:  1
+# XPASS: 0
+# ERROR: 0
+```
+
+Weird, most tests passed. What's going on?
+The clever testwrapper overrides our `LD_PRELOAD`:
+```
+# grep -rC1 LD_PRELOAD
+est/runwrapper-if [ -e "$PWD/.libs/libtestlookup.so" ]; then
+test/runwrapper:	export LD_PRELOAD="$PWD/.libs/libtestlookup.so"
+test/runwrapper-fi
+```
+
+Let's fix it for now
+```
+# sed -r -i -e 's/^if /if false \&\& /' test/runwrapper
+```
+(btw this illustrates the idea why `LD_PRELOAD` is unreliable
+and we should use `/etc/ld.so.preload` instead).
 
 Now finally results are expected:
 ```
@@ -337,7 +368,7 @@ Now finally results are expected:
 ```
 and closer inspection of logfile shows that fails are indeed due to the segfault we found above:
 ```
-yugr@yugr-VirtualBox:~/src/1/acl-2.2.53$ grep -a failingmalloc test-suite.log | head
+# grep -a failingmalloc test-suite.log | head
 failingmalloc: intercepting malloc in '/home/yugr/src/1/acl-2.2.53/.libs/setfacl -m u:bin:rw f' != ~
 failingmalloc: returning NULL from malloc in '/home/yugr/src/1/acl-2.2.53/.libs/setfacl -m u:bin:rw f' != ~
 failingmalloc: intercepting malloc in '/home/yugr/src/1/acl-2.2.53/.libs/setfacl -R -m u:bin:rwx h' != ~
@@ -353,8 +384,13 @@ failingmalloc: segmentation fault in '/home/yugr/src/1/acl-2.2.53/.libs/getfacl 
 
 # debian_pkg_test: unittesting at scale
 
+As we saw manually applying checker to different OSS projects is hard:
+  * we need to take care of dependencies
+  * we need to build code
+  * we need to consider various test system quirks
+
 The easiest way to automate running of unit tests for many open-source projects
-is to abuse^W reuse a build system of some distro.
+is to abuse^W reuse an existing distro build system.
 
 I selected Debian as it has the most packages and has convenient automation tools (pbuilder/cowbuilder).
 The main problem is that Debian build system is aimed at _building_ packages, not _testing_ them
@@ -369,14 +405,26 @@ This is done in branch `workshop/4` by adding support for `FAILING_MALLOC_LOGFIL
 environment variable and installing signal handler prior to retuning bad value
 from `malloc`.
 
-_TODO: use dedicated container with preinstalled debian_pkg_test_
-
-To set up debian_pkg_test we follow instructions
-in it's [README.md](https://github.com/yugr/debian_pkg_test#setting-up)
-and use pre-cooked integration from
-[examples/failingmalloc](https://github.com/yugr/debian_pkg_test/examples/failing-malloc).
 ```
-$ ./test_pkgs acl
+# git -C /work/failing-malloc checkout workshop/4
+# make -C /work/failing-malloc
+```
+
+Now we'll clone debian_pkg_test repo and set up a pbuilder container for tests:
+```
+# cd /work
+# git clone https://github.com/yugr/debian_pkg_test
+# cd debian_pkg_test
+```
+
+Now we can install failing-malloc integration
+```
+# cp examples/failing-malloc/hooks/* pbuilder-shared/hooks
+# cp -r /work/failing-malloc pbuilder-shared
+```
+and apply it to acl package:
+```
+$ ./test_pkgs --pbuilder acl
 ...
 ============================================================================
 Testsuite summary for acl 2.2.53
@@ -437,6 +485,7 @@ I saw segfaults in
   * acl
   * ligogg
   * apt
+But note that `debian_pkg_test` should preferably be run outside of Docker.
 
 If that sounds too boring, try improving the existing checker:
   * intercept other alloc functions like `realloc` or `aligned_alloc`
@@ -460,35 +509,3 @@ try writing other simple checkers e.g.
   * `memcpy`/`memcmp`/`malloc`/`calloc` of 0 bytes
 or, better yet, try to come up with your own idea and
 verify it's usefulness via debian_pkg_test.
-
-# (Backup)
-
-A reprocase from gpg.
-
-```
-$ apt-get install gpg-dbgsym libgcrypt20-dbgsym
-$ gdb -ex 'set startup-with-shell off' -ex "set environment LD_PRELOAD=$HOME/src/debian_pkg_test/pbuilder-shared/failing-malloc/bin/libfailingmalloc.so" -ex r --args /usr/bin/gpg
-...
-failingmalloc: intercepting malloc in '/usr/bin/gpg' (fail after 0 allocs)
-failingmalloc: returning NULL from malloc in '/usr/bin/gpg'
-
-Fatal error: No such file or directory
-
-Program received signal SIGABRT, Aborted.
-__GI_raise (sig=sig@entry=6) at ../sysdeps/unix/sysv/linux/raise.c:50
-50	../sysdeps/unix/sysv/linux/raise.c: No such file or directory.
-(gdb) bt
-#0  __GI_raise (sig=sig@entry=6) at ../sysdeps/unix/sysv/linux/raise.c:50
-#1  0x00007ffff7ae2859 in __GI_abort () at abort.c:79
-#2  0x00007ffff7d47826 in _gcry_fatal_error (rc=32849, text=0x7ffff7c74814 "No such file or directory", text@entry=0x0) at ../../src/misc.c:91
-#3  0x00007ffff7d4a169 in _gcry_xmalloc (n=n@entry=24) at ../../src/global.c:1120
-#4  0x00007ffff7e0eae7 in _gcry_mpi_alloc (nlimbs=nlimbs@entry=1) at ../../mpi/mpiutil.c:84
-#5  0x00007ffff7e0eb6b in _gcry_mpi_alloc_set_ui (u=<optimized out>) at ../../mpi/mpiutil.c:565
-#6  _gcry_mpi_init () at ../../mpi/mpiutil.c:63
-#7  0x00007ffff7d48a1a in global_init () at ../../src/global.c:133
-#8  0x00007ffff7d48c55 in global_init () at ../../src/global.c:246
-#9  _gcry_check_version (req_version=req_version@entry=0x55555563831b "1.7.0") at ../../src/global.c:244
-#10 0x00007ffff7d456f9 in gcry_check_version (req_version=req_version@entry=0x55555563831b "1.7.0") at ../../src/visibility.c:69
-#11 0x000055555560227b in _init_common_subsystems (errsource=<optimized out>, argcp=<optimized out>, argvp=<optimized out>) at ../../common/init.c:183
-#12 0x0000555555564ecf in main (argc=<optimized out>, argv=<optimized out>) at ../../g10/gpg.c:2348
-```
