@@ -509,3 +509,5 @@ try writing other simple checkers e.g.
   * `memcpy`/`memcmp`/`malloc`/`calloc` of 0 bytes
 or, better yet, try to come up with your own idea and
 verify it's usefulness via debian_pkg_test.
+For finding ideas on useful checkers try skimming through
+the [openwall list](https://www.openwall.com/lists/oss-security).
