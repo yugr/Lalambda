@@ -54,7 +54,7 @@ $ sudo docker run -it --privileged -v $HOME/work:/work yugr/failing-malloc
 So let's start with the simplest possible implementation
 of our checker. For that we'll clone the repo from Github
 and use initial implementation from
-[workshop/1](https://github.com/yugr/failing-malloc/tree/workshop/1) branch:
+[workshop/1](https://github.com/yugr/failing-malloc/commits/workshop/1) branch:
 ```
 # cd /work
 # git clone -b workshop/1 https://github.com/yugr/failing-malloc
@@ -129,7 +129,7 @@ Usually the easiest way to control instrumenting
 checkers is through a environment variables
 (that's e.g. how sanitizers work).
 
-That's what we do in branch [workshop/2](https://github.com/yugr/failing-malloc/tree/workshop/2).
+That's what we do in branch [workshop/2](https://github.com/yugr/failing-malloc/compare/workshop/1...workshop/2).
 Here we add a `FAILING_MALLOC_FAIL_AFTER` option to control
 when exactly to return NULL.
 
@@ -322,7 +322,7 @@ for now we just want to ignore them and proceed with libacl testing.
 
 Let's update our checker once again, this time teaching it to
 not instrument system programs and libraries.
-This is done in branch [workshop/3](https://github.com/yugr/failing-malloc/tree/workshop/3):
+This is done in branch [workshop/3](https://github.com/yugr/failing-malloc/compare/workshop/2...workshop/3):
 ```
 # git -C /work/failing-malloc checkout workshop/3
 # make -C /work/failing-malloc
@@ -402,7 +402,7 @@ We'll now use it to automate out checker.
 
 Firstly we need to make a small adaptation failing-malloc to massive batch runs,
 namely teach it to autodetect crashes and register them in dedicated place.
-This is done in branch [workshop/4](https://github.com/yugr/failing-malloc/tree/workshop/4)
+This is done in branch [workshop/4](https://github.com/yugr/failing-malloc/compare/workshop/3...workshop/4)
 by adding support for `FAILING_MALLOC_LOGFILE`
 environment variable and installing signal handler prior to retuning bad value
 from `malloc`.
