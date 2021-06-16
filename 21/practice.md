@@ -7,7 +7,7 @@ one way or another.
 and a well-written app should detect such cases and
 terminate graciously.
 
-Not doing will result in a SEGV signal being sent
+Not doing so will result in a SEGV signal being sent
 which will most likely cause a coredump,
 and often result in leaked system resources,
 hanged database transactions and other BAD THINGS.
@@ -53,7 +53,8 @@ $ sudo docker run -it --privileged -v $HOME/work:/work yugr/failing-malloc
 
 So let's start with the simplest possible implementation
 of our checker. For that we'll clone the repo from Github
-and use initial implementation from `workshop/1` branch:
+and use initial implementation from
+[workshop/1](https://github.com/yugr/failing-malloc/tree/workshop/1) branch:
 ```
 # cd /work
 # git clone -b workshop/1 https://github.com/yugr/failing-malloc
@@ -128,8 +129,8 @@ Usually the easiest way to control instrumenting
 checkers is through a environment variables
 (that's e.g. how sanitizers work).
 
-That's what we do in branch `workshop/2`. Here we add
-a `FAILING_MALLOC_FAIL_AFTER` option to control
+That's what we do in branch [workshop/2](https://github.com/yugr/failing-malloc/tree/workshop/2).
+Here we add a `FAILING_MALLOC_FAIL_AFTER` option to control
 when exactly to return NULL.
 
 Let's verify that it works:
@@ -321,7 +322,7 @@ for now we just want to ignore them and proceed with libacl testing.
 
 Let's update our checker once again, this time teaching it to
 not instrument system programs and libraries.
-This is done in branch `workshop/3`:
+This is done in branch [workshop/3](https://github.com/yugr/failing-malloc/tree/workshop/3):
 ```
 # git -C /work/failing-malloc checkout workshop/3
 # make -C /work/failing-malloc
@@ -401,7 +402,8 @@ We'll now use it to automate out checker.
 
 Firstly we need to make a small adaptation failing-malloc to massive batch runs,
 namely teach it to autodetect crashes and register them in dedicated place.
-This is done in branch `workshop/4` by adding support for `FAILING_MALLOC_LOGFILE`
+This is done in branch [workshop/4](https://github.com/yugr/failing-malloc/tree/workshop/4)
+by adding support for `FAILING_MALLOC_LOGFILE`
 environment variable and installing signal handler prior to retuning bad value
 from `malloc`.
 
@@ -485,6 +487,7 @@ I saw segfaults in
   * acl
   * ligogg
   * apt
+
 But note that `debian_pkg_test` should preferably be run outside of Docker.
 
 If that sounds too boring, try improving the existing checker:
@@ -507,6 +510,7 @@ Finally if the whole runtime checking idea inspires you,
 try writing other simple checkers e.g.
   * find intersecting ranges in `memcpy` or `strcpy`
   * `memcpy`/`memcmp`/`malloc`/`calloc` of 0 bytes
+
 or, better yet, try to come up with your own idea and
 verify it's usefulness via debian_pkg_test.
 For finding ideas on useful checkers try skimming through
