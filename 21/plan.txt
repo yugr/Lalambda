@@ -10,7 +10,7 @@ Available resources:
 |<-
    |Нужные вещи выучены
    |<-
-      |Прочитал Logical Foundations
+      |Освоил Logical Foundations
       |[X] 01 Basics
       |[X] 02 Induction
       |[] 03 Lists
@@ -32,7 +32,8 @@ Available resources:
       |Прослушал DeepSpec summer school
       |[] ???
    |<-
-      |Прочитал Specifying Systems
+      |Освоил Specifying Systems
+      |[X] Могу запускать TLA
       |[] ???
 |<- // due June 15
    |Выучено что-то

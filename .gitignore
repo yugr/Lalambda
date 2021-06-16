@@ -1,3 +1,8 @@
 .*.swp
+
+# Coq outputs
 \#*
 21/LF/*.log
+
+# Exercises for TLA book
+21/TLA/web
