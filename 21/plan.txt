@@ -34,7 +34,19 @@ Available resources:
    |<-
       |Освоил Specifying Systems
       |[X] Могу запускать TLA
-      |[] ???
+      |[X] SimpleMath
+      |[X] HourClock
+      |[X] AsynchronousInterface
+      |[] FIFO
+      |[] CachingMemory
+      |[] MoreMath
+      |[] Liveness
+      |[] RealTime
+      |[] Composing
+      |[] AdvancedExamples
+      |[] TLC
+      |[] Syntax
+      |[] Standard
 |<- // due June 15
    |Выучено что-то
    |[] Прочитано 2 главы из LF
