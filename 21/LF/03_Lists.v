@@ -197,3 +197,149 @@ simpl.
 rewrite eqb_reflexivity.
 reflexivity.
 Qed.
+
+Fixpoint app (l1 l2 : natlist) : natlist :=
+  match l1 with
+  | nil    => l2
+  | h :: t => h :: (app t l2)
+  end.
+
+Notation "x ++ y" := (app x y)
+                     (right associativity, at level 60).
+
+Theorem app_assoc :
+  forall l1 l2 l3 : natlist,
+  (l1 ++ l2) ++ l3 = l1 ++ (l2 ++ l3).
+Proof.
+intros l1 l2 l3.
+induction l1 as [| n l1' IHl1'].
+- (* l1 = nil *)
+  reflexivity.
+- (* l1 = cons n l1' *)
+  simpl.
+  rewrite -> IHl1'.
+  reflexivity.
+Qed.
+
+Theorem app_nil_r :
+  forall (l : natlist), l ++ [] = l.
+Proof.
+intros.
+induction l as [|n l' IHl'].
+- simpl.
+  reflexivity.
+- simpl.
+  rewrite -> IHl'.
+  reflexivity.
+Qed.
+
+Fixpoint rev (l:natlist) : natlist :=
+  match l with
+  | nil    => nil
+  | h :: t => rev t ++ [h]
+  end.
+
+Theorem rev_app_distr :
+  forall (l1 l2 : natlist),
+  rev (l1 ++ l2) = rev l2 ++ rev l1.
+Proof.
+intros.
+induction l1 as [|n l1' IHl'].
+- simpl.
+  rewrite app_nil_r.
+  reflexivity.
+- simpl.
+  rewrite IHl'.
+  rewrite app_assoc.
+  reflexivity.
+Qed.
+
+Theorem rev_head :
+  forall (l : natlist) (n : nat),
+  rev (n :: l) = rev l ++ [n].
+Proof.
+intros l.
+induction l as [|x l' IHl'].
+- simpl.
+  reflexivity.
+- intros.
+  simpl.
+  reflexivity.
+Qed.
+
+Theorem rev_involutive :
+  forall (l : natlist), rev (rev l) = l.
+Proof.
+intros.
+induction l as [|n l' IHl'].
+- simpl.
+  reflexivity.
+- simpl.
+  rewrite rev_app_distr.
+  rewrite IHl'.
+  simpl.
+  reflexivity.
+Qed.
+
+Theorem app_assoc4 :
+  forall (l1 l2 l3 l4 : natlist),
+  l1 ++ (l2 ++ (l3 ++ l4)) = ((l1 ++ l2) ++ l3) ++ l4.
+Proof.
+intros.
+rewrite app_assoc.
+rewrite app_assoc.
+reflexivity.
+Qed.
+
+Lemma nonzeros_app :
+  forall (l1 l2 : natlist),
+  nonzeros (l1 ++ l2) = nonzeros l1 ++ nonzeros l2.
+Proof.
+intros.
+induction l1 as [|n l1' IHl'].
+- simpl.
+  reflexivity.
+- destruct n.
+  + simpl.
+    rewrite IHl'.
+    reflexivity.
+  + simpl.
+    rewrite IHl'.
+    reflexivity.
+Qed.
+
+Fixpoint eqblist (l1 l2 : natlist) : bool :=
+  match l1, l2 with
+  | nil, nil             => true
+  | x1 :: l1', x2 :: l2' => if eqb x1 x2 then eqblist l1' l2' else false
+  | _, _                 => false
+  end.
+
+Theorem eqb_refl :
+  forall (n : nat), eqb n n = true.
+Proof.
+induction n.
+- simpl.
+  reflexivity.
+- simpl.
+  rewrite IHn.
+  reflexivity.
+Qed.
+
+Theorem eqblist_refl :
+  forall (l : natlist),
+  eqblist l l = true.
+Proof.
+intros.
+induction l as [|n l' IHl'].
+- simpl.
+  reflexivity.
+- destruct n.
+  + simpl.
+    rewrite IHl'.
+    reflexivity.
+  + simpl.
+    rewrite eqb_refl.
+    rewrite IHl'.
+    reflexivity.
+Qed.
