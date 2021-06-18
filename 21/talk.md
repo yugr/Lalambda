@@ -66,7 +66,9 @@ TODO
 
 # Instrumentation taxonomy: compile-time
 
-* Preprocess-time (`#define malloc safe_malloc` e.g. [dmalloc](https://dmalloc.com))
+* Preprocess-time:
+  * [_FORTIFY_SOURCE](https://access.redhat.com/blogs/766093/posts/1976213)
+  * `#define malloc safe_malloc` e.g. [dmalloc](https://dmalloc.com)
 * Compile-time instrumentation:
   * source-to-source (e.g. via Clang tooling)
   * codegen-based (e.g. [Asan](https://clang.llvm.org/docs/AddressSanitizer.html) or [DirtyPad](https://github.com/yugr/DirtyPad))
