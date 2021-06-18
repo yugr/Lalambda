@@ -4,3 +4,6 @@ web
 # Temp files by tlc
 out
 states
+
+# TLC
+tla2tools.jar
