@@ -112,11 +112,11 @@ Fail Fixpoint alternate (l1 l2 : natlist) : natlist :=
 
 Fixpoint alternate (l1 l2 : natlist) : natlist :=
   match l1 with
-  | nil    => nil
+  | nil    => l2
   | x :: l1' =>
     match l2 with
     | y :: l2' => x :: y :: alternate l1' l2'
-    | nil      => nil
+    | nil      => x :: alternate l1' l2
     end
   end.
 
@@ -304,6 +304,7 @@ induction l1 as [|n l1' IHl'].
     rewrite IHl'.
     reflexivity.
   + simpl.
+
     rewrite IHl'.
     reflexivity.
 Qed.
@@ -343,3 +344,174 @@ induction l as [|n l' IHl'].
     rewrite IHl'.
     reflexivity.
 Qed.
+
+Fixpoint leb (n m : nat) :=
+  match n, m with
+  | O, O => true
+  | S _, O => false
+  | O, S _ => true
+  | S n', S m' => leb n' m'
+  end.
+
+Notation "x <=? y" := (leb x y) (at level 60).
+
+Theorem count_member_nonzero :
+  forall (s : bag),
+  1 <=? (count 1 (1 :: s)) = true.
+Proof.
+intros.
+simpl.
+destruct (count 1 s); reflexivity.
+Qed.
+
+Theorem leb_n_Sn :
+  forall n, n <=? S n = true.
+Proof.
+intros.
+induction n as [|n' IHn'].
+- simpl.
+  reflexivity.
+- simpl.
+  rewrite IHn'.
+  reflexivity.
+Qed.
+
+Theorem remove_does_not_increase_count :
+  forall (s : bag), count 0 (remove1 0 s) <=? (count 0 s) = true.
+Proof.
+intros.
+induction s as [|n s' IHs'].
+- simpl.
+  reflexivity.
+- destruct n.
+  + simpl.
+    rewrite leb_n_Sn.
+    reflexivity.
+  + simpl.
+    rewrite IHs'.
+    reflexivity.
+Qed.
+
+Theorem bag_count_sum :
+  forall (a b : bag) (n : nat), count n (sum a b) = count n a + count n b.
+Proof.
+intros.
+induction a as [|x a' IHa'].
+Admitted. (* TODO *)
+
+Lemma cons_is_app :
+  forall (l : natlist) (n : nat), n :: l = [n] ++ l.
+Proof.
+intros.
+induction l; simpl; reflexivity.
+Qed.
+
+Lemma cons_app_commute :
+  forall (l1 l2 : natlist) (n : nat), (n :: l1) ++ l2 = n :: (l1 ++ l2).
+Proof.
+intros.
+rewrite -> cons_is_app.
+assert (n :: l1 ++ l2 = [n] ++ (l1 ++ l2)).
+- rewrite cons_is_app. reflexivity.
+- rewrite -> H.
+  rewrite app_assoc.
+  reflexivity.
+Qed.
+
+Lemma app1_not_empty :
+  forall (l : natlist) (n : nat), not (l ++ [n] = []).
+Proof.
+intros.
+induction l.
+- simpl.
+  discriminate.
+- rewrite cons_app_commute.
+  discriminate.
+Qed.
+
+Lemma rev_empty :
+  forall (a : natlist), rev a = [] -> a = [].
+Proof.
+intro.
+destruct a.
+- simpl.
+  intros.
+  reflexivity.
+- simpl.
+  intros.
+  exfalso.
+  apply app1_not_empty in H.
+  assumption.
+Qed.
+
+Theorem rev_injective :
+  forall (a b : natlist), rev a = rev b -> a = b.
+Proof.
+intros a.
+induction a.
+- simpl.
+  symmetry.
+  symmetry in H.
+  apply rev_empty.
+  assumption.
+- destruct b.
+  + assert (rev [] = []).
+    * simpl. reflexivity.
+    * rewrite H.
+      apply rev_empty.
+  + (* rev (n :: a) = rev (n0 :: b) -> n :: a = n0 :: b *)
+Admitted.
+
+Theorem rev_injective_simple :
+  forall (a b : natlist), rev a = rev b -> a = b.
+Proof.
+intros.
+assert (rev (rev a) = rev (rev b)).
+- rewrite H.
+  reflexivity.
+- rewrite rev_involutive in H0.
+  rewrite rev_involutive in H0.
+  assumption.
+Qed.
+
+(* New stuff: symmetry, exfalso, apply ... in ... VS rewrite *)
+
+Inductive natoption : Type :=
+  | Some (n : nat)
+  | None.
+
+Fixpoint nth_error (l:natlist) (n:nat) : natoption :=
+  match l with
+  | nil     => None
+  | a :: l' => match n with
+               | O    => Some a
+               | S n' => nth_error l' n'
+               end
+  end.
+
+Definition option_elim (d : nat) (o : natoption) : nat :=
+  match o with
+  | Some n' => n'
+  | None    => d
+  end.
+
+Definition hd_error (l : natlist) : natoption :=
+  match l with
+  | nil    => None
+  | x :: _ => Some x
+  end.
+
+Definition hd (d : nat) (l : natlist) :=
+  match l with
+  | nil    => d
+  | x :: _ => x
+  end.
+
+Theorem optional_elimit_hd :
+  forall (l : natlist) (d : nat), hd d l = option_elim d (hd_error l).
+Proof.
+intros.
+induction l; simpl; reflexivity.
+Qed.
+
+(* Remaining tasks too simple *)

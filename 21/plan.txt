@@ -13,7 +13,7 @@ Available resources:
       |Освоил Logical Foundations
       |[X] 01 Basics
       |[X] 02 Induction
-      |[] 03 Lists
+      |[X] 03 Lists
       |[] 04 Poly
       |[] 05 Tactics
       |[] 06 Logic
