@@ -1,0 +1,4 @@
+Issues with TLA language:
+* ugly Latex-based syntax of operators
+* no control over symbol imports in EXTENDS => high chance of conflicts
+* whitespace-based parsing of \/ and /\
