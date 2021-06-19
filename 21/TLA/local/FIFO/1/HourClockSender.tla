@@ -3,7 +3,7 @@ EXTENDS HourClock, Channel
 SenderTypeInvariant ==
   /\ HCinv
   /\ TypeInvariant
-  /\ chan \in [val : {1..12},  rdy : {0, 1},  ack : {0, 1}]
+  /\ chan \in [val : Month, rdy : {0, 1}, ack : {0, 1}]
 ----
 SenderInit == HCini /\ Init
 \* SenderNext == HCnxt /\ (Send(hr) \/ Rcv)

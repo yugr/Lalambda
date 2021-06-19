@@ -1,11 +1,12 @@
 ---------------------- MODULE HourClock ----------------------
 EXTENDS Naturals
 VARIABLE hr
-HCinv == hr \in (1 .. 12)
+Month == 1 .. 12
+HCinv == hr \in Month
 ----
-HCini == hr \in (1 .. 12)
+HCini == hr \in Month
 HCnxt == hr' = IF hr # 12 THEN hr + 1 ELSE 1
 HC    == HCini /\ [][HCnxt]_hr
 ----
-THEOREM  HC => []HCinv
+THEOREM HC => []HCinv
 ==============================================================
