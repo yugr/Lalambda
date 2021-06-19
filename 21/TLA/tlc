@@ -12,12 +12,15 @@ fi
 args=
 for arg in "$@"; do
   if echo "$arg" | fgrep -q /; then
-    arg=$(echo "$arg" | tr / '\')
+    arg=$(echo "$arg" | tr / '\\')
   fi
   args="$args $arg"
 done
 set -- $args
 
-jar='C:\Users\User\Downloads\tla2tools.jar'
+jar=$PWD/tla2tools.jar
+if test $(uname -o) = Cygwin; then
+  jar=$(cygpath -w $jar)
+fi
 
 java -jar "$jar" -config "$2" "$1"
