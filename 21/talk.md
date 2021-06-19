@@ -35,9 +35,9 @@ TODO: photo
 * Valgrind
 * Sanitizers (Asan, UBsan, Msan, Tsan, etc.)
 
-# Ontology of a checker
+# Ontology of dynamic analysis project
 
-Runtime analysis contains of three main "parts":
+Runtime analysis project contains of three main "parts":
   * spec: an invariant that we want to check
   * instrumentation: a way to verify that invariant is preserved during execution
   * test corpus: input data which we run checker through
