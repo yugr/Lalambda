@@ -159,5 +159,5 @@ Interesting topics:
 # The End
 
 Please share your ideas on runtime verification!
-  * tetra2005 a_t gmail d_o_t com
+  * tetra2005 beim gmail punct com
   * TG @the_real_yugr
