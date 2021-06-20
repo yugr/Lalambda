@@ -143,7 +143,7 @@ The "test corpus" part: find ways to significantly increase coverage by extendin
 
 * Code can be instrumented by forced inclusion of debug header
   * e.g. via `-include mycheker.h`
-  * header would contain something like `#define malloc safe_malloc` 
+  * header would contain something like `#define malloc my_safe_malloc` 
 * Examples:
   * [dmalloc](https://dmalloc.com)
   * [_FORTIFY_SOURCE](https://access.redhat.com/blogs/766093/posts/1976213)
@@ -165,6 +165,7 @@ The "test corpus" part: find ways to significantly increase coverage by extendin
 
 Link-time instrumentation:
   * replacing normal code with "checking" implementations at link time
+  * e.g. via `-Wl,--defsym,malloc=my_safe_malloc`
   * e.g. [\_malloc_dbg](https://docs.microsoft.com/en-us/cpp/c-runtime-library/reference/malloc-dbg?view=msvc-160) replaces normal `malloc` if user links against debug version of Microsoft runtime
 
 ---
