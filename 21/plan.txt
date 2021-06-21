@@ -14,7 +14,7 @@ Weekends:
       |[X] 01 Basics
       |[X] 02 Induction
       |[X] 03 Lists
-      |[] 04 Poly
+      |[X] 04 Poly
       |[] 05 Tactics
       |[] 06 Logic
       |[] 07 IndProp
