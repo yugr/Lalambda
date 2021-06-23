@@ -384,12 +384,19 @@ destruct l.
   discriminate.  (* S ... = O is false *)
 Qed.
 
+Search ">".
+
 Lemma length_non_0_means_full :
-  forall (X : Type) (l : list X), length l > 0 -> not (l = nil).
+  forall (X : Type) (l : list X), not (length l = 0) -> not (l = nil).
 Proof.
 intros X l.
 destruct l.
-Admitted.
+- simpl.
+  intros.
+  contradiction.
+- intros.
+  discriminate.
+Qed.
 
 Theorem nth_error_none :
   forall (X : Type) (l : list X) (n : nat), length l = n -> nth_error l n = None.
@@ -404,7 +411,16 @@ induction n.
   simpl.
   reflexivity.
 - intros.
-Admitted. (* TODO *)
+  destruct l0.
+  + simpl.
+    reflexivity.
+  + simpl.
+    simpl in H.
+    injection H.
+    intros.
+    apply IHn.
+    assumption.
+Qed.
 
 Module Church.
 
