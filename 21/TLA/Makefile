@@ -2,7 +2,8 @@ TESTS = web/SimpleMath/SimpleMath \
   web/HourClock/HourClock web/HourClock/HourClock2 \
   local/HourClock/HourClockInvalid local/HourClock/HourClock2Invalid \
   local/AsynchronousInterface/PrintValues local/AsynchronousInterface/HourClockChannel \
-	local/FIFO/1/HourClockSender local/FIFO/2/HourClockSender local/FIFO/3/HourClock
+	local/FIFO/1/HourClockSender local/FIFO/2/HourClockSender local/FIFO/3/HourClock \
+	local/MoreMath/PrintValues
 
 LOGS = $(TESTS:%=out/%.log)
 
