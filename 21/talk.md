@@ -287,8 +287,7 @@ Please share your ideas on runtime verification!
   * tetra2005 beim gmail punct com
   * TG @the_real_yugr
   * GH [yugr](https://www.github.com/yugr)
-
-TODO: habr
+  * Habr [the_real_yugr](https://habr.com/ru/users/the_real_yugr/)
 
 ---
 
