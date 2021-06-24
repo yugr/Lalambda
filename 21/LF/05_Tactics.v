@@ -142,3 +142,83 @@ induction n.
 Qed.
 
 (* nth_error_after_last already prooved before *)
+
+Fixpoint split {X Y : Type} (l : list (X * Y)) : (list X) * (list Y) :=
+  match l with
+  | nil          => (nil, nil)
+  | (x, y) :: l' =>
+    match split l' with
+    | (lx', ly') => (x :: lx', y :: ly')
+    end
+  end.
+
+Fixpoint combine {X Y : Type} (lx : list X) (ly : list Y) : list (X * Y) :=
+  match lx, ly with
+  | nil, _              => nil
+  | _, nil              => nil
+  | x :: lx', y :: ly' => (x, y) :: combine lx' ly'
+  end.
+
+Lemma split_nil :
+  forall X Y (l : list (X *Y)) l2,
+  split l = (nil, l2) -> l = nil.
+Proof.
+intros X Y l.
+induction l.
+- intros.
+  reflexivity.
+- intros.
+  destruct a.
+  simpl in H.
+  destruct (split l).
+  discriminate H.
+Qed.
+
+Theorem combine_split :
+  forall X Y (l : list (X * Y)) l1 l2,
+  split l = (l1, l2) -> combine l1 l2 = l.
+Proof.
+intros x y l.
+induction l.
+- intros.
+  simpl in H.
+  symmetry in H.
+  injection H.
+  intros.
+  rewrite H0.
+  rewrite H1.
+  simpl.
+  reflexivity.
+- intros.
+  destruct a.
+  simpl in H.
+  destruct (split l).
+  injection H.
+  intros.
+  rewrite <- H0.
+  rewrite <- H1.
+  simpl.
+  assert (combine l0 l3 = l). {apply IHl. reflexivity. }
+  rewrite H2.
+  reflexivity.
+Qed.
+
+Theorem bool_fn_applied_thrice :
+  forall (f : bool -> bool) (b : bool),
+  f (f (f b)) = f b.
+Proof.
+intros.
+destruct b.
+- destruct (f true) eqn:Htrue.
+  + rewrite Htrue.
+    assumption.
+  + destruct (f false) eqn:Hfalse.
+    ++ assumption.
+    ++ assumption.
+- destruct (f false) eqn:Hfalse.
+  + destruct (f true) eqn:Htrue.
+    ++ assumption.
+    ++ assumption.
+  + rewrite Hfalse.
+    assumption.
+Qed.

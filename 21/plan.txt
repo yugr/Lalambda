@@ -39,7 +39,7 @@ Weekends:
       |[X] AsynchronousInterface
       |[X] FIFO
       |[] CachingMemory
-      |[] MoreMath
+      |[X] MoreMath
       |[] Liveness
       |[] RealTime
       |[] Composing

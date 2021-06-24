@@ -2,14 +2,15 @@ Issues with TLA language:
 * ugly Latex-based syntax of operators (backslashes, `----`, etc.)
 * no control over symbol imports in `EXTENDS` => high chance of conflicts
 * whitespace-based parsing of `\/` and `/\`
-* unclear error messages
-* complicated recursive definitions (CHOOSE, no mutual recursion, RECURSIVE)
-* operator operand must be the first operand of higher recursive operator: this works:
+* unclear error messages e.g.
 ```
-RECURSIVE Apply(_, _)
-Apply(op(_), s) == op(Head(s))
+Apply(op(_, _), s, val) ==
+  LET ApplyImpl[i \in Nat] == IF i == 0 THEN -1 ELSE i IN ApplyImpl(Len(s))
 ```
-but this does not
+will abort with
 ```
-Apply(s, op(_)) == op(Head(s))
+Encountered "Beginning of definition" at line 22, column 34 and token "IF"
 ```
+whereas the real error is usage of `()` instead of `[]`
+* complicated recursive definitions (CHOOSE, no mutual recursion, RECURSIVE, no recursion in higher-order operators)
+* no REPL

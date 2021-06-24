@@ -1,5 +1,5 @@
 ---- MODULE PrintValues ----
-EXTENDS Naturals, TLC, Sequences
+EXTENDS Naturals, TLC, Sequences, Reals
 PrintVal(id, exp) == Print(<<id, exp>>, TRUE)
 ----
 ASSUME
@@ -15,8 +15,25 @@ ASSUME
   /\ PrintVal("1.9", SUBSET [a : {1}, b : {2}])
   /\ PrintVal("1.10", CHOOSE n \in 1..100 : n^2 = 49)
 
-RECURSIVE Apply(_, _, _)
-\* Why this does not work?! Apply(op(_, _), s, val) == IF s == << >> THEN val ELSE Apply(op, Tail(s), op(val, Head(s)))
-Apply(op(_, _), s, val) == IF s = << >> THEN val ELSE Apply(op, Tail(s), op(Head(s), val))
+Foldr(op(_, _), s, val) ==
+  LET FoldrImpl[i \in Nat] ==
+    IF i = 0 THEN val ELSE op(FoldrImpl[i - 1], s[i])
+  IN FoldrImpl[Len(s)]
+
+ASSUME PrintVal("2.1", LET Plus(a, b) == a + b IN Foldr(Plus, <<1, 2, 3>>, 0))
+
+Foldl(op(_, _), s, val) ==
+  LET FoldlImpl[i, acc \in Nat] ==
+   IF i > Len(s) THEN acc ELSE FoldlImpl[i + 1, op(acc, s[i])]
+  IN FoldlImpl[1, val]
+
+ASSUME PrintVal("2.1", LET Plus(a, b) == a + b IN Foldl(Plus, <<1, 2, 3>>, 0))
+
+(* 3.a can't be defined because we can't defined domain *)
+
+f3b[S \in SUBSET Real] == CHOOSE x \in S : \A y \in S : x >= y
+f3b_other == [S \in SUBSET Real |-> CHOOSE x \in S : \A y \in S : x >= y]
+
+f3a[n \in Nat] == IF n = 0 THEN 1 ELSE n * f3a[n + 1]
 
 ====
