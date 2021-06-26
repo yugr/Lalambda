@@ -44,7 +44,7 @@ Weekends:
       |[] RealTime
       |[] Composing
       |[] AdvancedExamples
-      |[] TLC
+      |[X] TLC
       |[] Syntax
       |[] Standard
 |<- // due June 15
