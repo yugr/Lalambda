@@ -48,7 +48,10 @@ backgroundImage: url('https://marp.app/assets/hero-background.jpg')
 # Disadvantages
 
 * Limited coverage
-* Solved via fuzzing and rule/grammar-based input generators
+* Solved via
+  * fuzzing
+  * rule/grammar-based input generators
+  * AB-testing in production
 
 ---
 
