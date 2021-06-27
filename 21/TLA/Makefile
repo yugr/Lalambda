@@ -10,7 +10,7 @@ LOGS = $(TESTS:%=out/%.log)
 
 all: $(LOGS)
 
-out/%.log: %.tla %.cfg
+out/%.log: %.tla
 	mkdir -p `dirname $@`
 	time ./tlc $^ 2>&1 | tee $@
 
