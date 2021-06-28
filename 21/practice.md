@@ -493,7 +493,9 @@ But note that `debian_pkg_test` should preferably be run outside of Docker.
 If that sounds too boring, try improving the existing checker:
   * intercept other alloc functions like `realloc` or `aligned_alloc`
     (would also be nice to figure out why `calloc` interception does not work!)
-    and `operator new` (in theory C++ insists on throwing `std::bad_cast`
+    * `dlsym` itself calls `calloc` so will need to resort to "early malloc"
+      from static buffer until first successful return from `dlsym`
+  * intercept `operator new` (in theory C++ insists on throwing `std::bad_cast`
     on failed allocation but many C++ programs are compiled with `-fno-exceptions`
     and simply return `NULL` on OOM)
   * add support for control via single env variable `FAILING_MALLOC_OPTIONS`
