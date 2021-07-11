@@ -26,20 +26,23 @@ large scale. We'll then use it to find issues in popular OSS packages.
 
 # Prerequisites
 
-We'll be using Docker for our experiments.
-To install Docker on Ubuntu please follow the guide
+We'll be using Docker for our experiments. To install Docker
+* on Ubuntu: follow the guide
 at https://docs.docker.com/engine/install/ubuntu/
+* on Fedora/RedHat: see https://developer.fedoraproject.org/tools/docker/docker-installation.html
 
 To avoid the need to run Docker commands with `sudo`, run
 ```
 $ sudo usermod -aG docker $USER
 $ newgrp docker
 ```
+and restart Docker service (or just restart the machine).
 
 Then go to the `docker` subdirectory and run
 ```
 $ sudo docker build -t yugr/failing-malloc .
 ```
+and then wait for ~30 minutes.
 
 Finally create a local workspace on you host system
 and start docker
@@ -214,7 +217,7 @@ acl: /bin/getfacl
 # dpkg -S libacl.so.1
 libacl1:amd64: /usr/lib/x86_64-linux-gnu/libacl.so.1
 libacl1:amd64: /usr/lib/x86_64-linux-gnu/libacl.so.1.1.2253
-# sudo apt-get install acl-dbgsym libacl1-dbgsym
+# apt-get install acl-dbgsym libacl1-dbgsym
 ```
 
 Now rerun gdb and enjoy a nicely formatted backtrace:
@@ -281,7 +284,7 @@ failed to properly release the resources.
 At this point we can quickly cook a patch and file a bug
 in acl's bugtracker.
 
-# Testing at larger scale
+# Test automation
 
 Now, of course manually applying checkers to various programs
 is a tiresome and boring task.
@@ -352,10 +355,11 @@ test/runwrapper-fi
 
 Let's fix it for now
 ```
-# sed -r -i -e 's/^if /if false \&\& /' test/runwrapper
+# mv .libs/libtestlookup.so .libs/libtestlookup.so.bak
 ```
-(btw this illustrates the idea why `LD_PRELOAD` is unreliable
-and we should use `/etc/ld.so.preload` instead).
+Btw this illustrates the idea why `LD_PRELOAD` is unreliable
+and we should use `/etc/ld.so.preload` instead
+(which is what we will do in `debian_pkg_test` automation later.
 
 Now finally results are expected:
 ```
@@ -502,7 +506,7 @@ If that sounds too boring, try improving the existing checker:
     (verbosity, logfile, file pattern to enable/disable fails, etc.)
   * make library scan more efficient (used interval tree instead of linear search)
   * print caller's address, DSO and program location (e.g. via `addr2line(1)`)
-    and use it for automatic bug deduplication
+    and use it for automatic bug deduplication in `FAILING_MALLOC_FAIL_AFTER` loop
   * randomize number of skipped mallocs before first return 0
   * automatically fork tested app multiple times with different skip factors
     (fuzzing)
