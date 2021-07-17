@@ -214,14 +214,18 @@ Link-time instrumentation:
 
 # How to test a checker: comparison
 
+<style scoped>
+table {
+  font-size: 90%
+}
+</style>
+
 Test                              | Automatic | Coverage | All checkers
 ----------------------------------|-----------|----------|-------------
 Manual package testing            | N         | High     | Y
 Running apps with standard params | Y         | Low      | LD_PRELOAD-ony
 System benchmarks                 | Y         | Low      | Y
 Distro boot                       | Y         | Low (need manual actions to increase) | LD_PRELOAD-only
-
-TODO: css
 
 ---
 
@@ -248,25 +252,20 @@ TODO: css
 
 # Trends (1)
 
-* Automatic generation of tests
-  * on-the-fly mutation aka fuzzing
-    * automatic application of tools like AFL/libFuzzer
-    * "Growing A Test Corpus with Bonsai Fuzzing" https://arxiv.org/pdf/2103.04388.pdf
-    * "Whole testsuite generation" https://www.evosuite.org/wp-content/papercite-data/pdf/tse12_evosuite.pdf
-  * using concolic testing to extend existing tests via static analysis
+Increasing fuzzing speed and efficiency (coverage) by various means
+  * feedback-driven ("grey-box")
+    * [AFL](https://lcamtuf.coredump.cx/afl/) and related tools (gofuzz, libfuzzer, etc.)
+  * analysis-driven ("white-box")
     * [Billions and Billions of Constraints: Whitebox Fuzz Testing in Production](https://www.microsoft.com/en-us/research/wp-content/uploads/2016/02/main-may10.pdf)
-  * alternative (more realistic?) industry solutions:
-    * inspire project owners to write fuzzing for their projects through initiatives like [oss-fuzz](https://github.com/google/oss-fuzz)
-    * bug bounty programs e.g. [Google Fuzzilli](https://portswigger.net/daily-swig/google-launches-fuzzilli-grant-program-to-boost-js-engine-fuzzing-research)
+  * various combinations thereof
 
 ---
 
 # Trends (2)
 
-* Automatic specification mining
-  * "Mutation-driven Generation of Unit Tests and Oracles" https://citeseerx.ist.psu.edu/viewdoc/download?doi=10.1.1.472.7671&rep=rep1&type=pdf
-
-TODO: read articles
+Increasing adoption in community:
+  * inspire project owners to write fuzzing for their projects through initiatives like [oss-fuzz](https://github.com/google/oss-fuzz)
+  * bug bounty programs e.g. [Google Fuzzilli](https://portswigger.net/daily-swig/google-launches-fuzzilli-grant-program-to-boost-js-engine-fuzzing-research)
 
 ---
 
