@@ -6,10 +6,18 @@ backgroundColor: #fff
 backgroundImage: url('https://marp.app/assets/hero-background.jpg')
 
 ---
+<style>
+footer {
+    height: 200px;
+    margin-bottom: -80px;
+}
+</style>
 
 # **Runtime verification**
 
 (aka Dynamic Analysis)
+
+Y. Gribov, Samsung Advanced Institute of Technology
 
 [Lalambda '21](https://github.com/yugr/Lalambda/tree/master/21)
 
@@ -18,7 +26,7 @@ backgroundImage: url('https://marp.app/assets/hero-background.jpg')
 # Something about the author
 
 * www.github.com/yugr
-* TL @ Samsung Moscow
+* PL @ Samsung Moscow
 * Accidentally became a compiler writer 15 years ago
   * In-house, GCC, LLVM, neurocompilers (also some HPC and gamedev)
 * Passionate about verification in general and dynamic/static analyses in particular
@@ -51,7 +59,7 @@ backgroundImage: url('https://marp.app/assets/hero-background.jpg')
 * Solved via
   * fuzzing
   * rule/grammar-based input generators
-  * AB-testing in production
+  * A/B testing (in production environments)
 
 ---
 
@@ -62,6 +70,26 @@ backgroundImage: url('https://marp.app/assets/hero-background.jpg')
 * Library sanity checks (e.g. Glibc `malloc` internal checks)
 * Valgrind
 * Sanitizers (Asan, UBsan, Msan, Tsan, etc.)
+* "Business rules" (e.g. GDPR, data minimization)
+
+---
+
+# Community
+
+<style scoped>
+{
+  font-size: 200%
+}
+</style>
+
+* Scientific camp ([Runtime Verification conference](https://runtime-verification.github.io))
+  * grew out of model checking in 2000-s ([Runtime Verification - 17 Years Later](http://www.havelund.com/Publications/rv-2018-test-of-time.pdf))
+  * apply complex modal logic formulas to program traces
+  * often applied to interesting niche projects
+* Engineering camp
+  * automatically detect bugs at large scale (without manual work by user)
+  * much older (malloc debuggers existed at least since 80-s)
+  * typically much more influential
 
 ---
 
@@ -69,8 +97,8 @@ backgroundImage: url('https://marp.app/assets/hero-background.jpg')
 
 Runtime analysis project contains of three main "parts":
   * spec: an invariant that we want to check
-  * instrumentation: a way to verify that invariant is preserved during execution
-  * test corpus: input data which we run checker through
+  * instrumentation (aka monitor): a way to verify that invariant is preserved during execution
+  * test corpus: input data which we run the checker through
 
 New successful checkers are created by innovating in any of the three components.
 
@@ -134,6 +162,15 @@ The "test corpus" part: find ways to significantly increase coverage by extendin
 
 ---
 
+# Spec taxonomy (4)
+
+* Violation of "business rules":
+  * very application specific
+  * specifications are extracted from domain experts, architects, QA, etc.
+  * [Industrial Experiences with Runtime Verification](https://www.youtube.com/watch?v=Un5pJVqjUK0)
+
+---
+
 # Instrumentation taxonomy
 
 * Runtime verification is trivial in languages like Python or Java
@@ -178,7 +215,7 @@ Link-time instrumentation:
 * Run-time instrumentation types:
   * `LD_PRELOAD`-based (e.g. [ElectricFence](https://elinux.org/Electric_Fence), [sortchecker](https://github.com/yugr/sortcheck), [failing-malloc](https://github.com/yugr/failing-malloc))
   * syscall instrumentation (e.g. [SystemTap](https://sourceware.org/systemtap/wiki))
-  * interpretation/JITs (e.g. [Valgrind](https://www.valgrind.org), [DynamoRIO](https://dynamorio.org) or [Intel Ping](https://software.intel.com/content/www/us/en/develop/articles/pin-a-dynamic-binary-instrumentation-tool.html))
+  * dynamic binary instrumentation (aka DBI, e.g. [Valgrind](https://www.valgrind.org), [DynamoRIO](https://dynamorio.org) or [Intel Ping](https://software.intel.com/content/www/us/en/develop/articles/pin-a-dynamic-binary-instrumentation-tool.html))
 
 ---
 
@@ -186,11 +223,11 @@ Link-time instrumentation:
 
 * Once checker is ready you'll want to test it on as much code as you can
 * Manually apply checker to important OSS projects (archivers, media processing libraries, browsers, etc.)
+  * run builtin unittests
+  * manual work: tiresome and demotivating
   * to find interesting package faster:
     * [popularity rating](https://popcon.debian.org/by_vote)
     * [Debian codesearch](https://codesearch.debian.net)
-  * build and run unittests
-  * manual work: tiresome and demotivating
 
 ---
 
@@ -201,14 +238,16 @@ Link-time instrumentation:
   * automatic but coverage is low
 * System-level instrumentation
   * run system benchmarks (e.g. [Phoronix suite](https://www.phoronix-test-suite.com))
-    * manual work and coverage is still low
+  * manual work and coverage is still low
 
 ---
 
 # How to test a checker (3)
 
-* For `LD_PRELOAD`-based checkers: boot complete Linux distro with your checker preloaded
-  * LD_PRELOAD-only and need to perform manual actions to explore system behavior
+* For `LD_PRELOAD`- or DBI-based checkers: boot complete Linux distro with your checker preloaded
+  * for example [valgrind-preload](https://github.com/yugr/valgrind-preload)
+  * limited applicability
+  * need to perform manual actions to explore system behavior
 
 ---
 
@@ -223,9 +262,9 @@ table {
 Test                              | Automatic | Coverage | All checkers
 ----------------------------------|-----------|----------|-------------
 Manual package testing            | N         | High     | Y
-Running apps with standard params | Y         | Low      | LD_PRELOAD-ony
+Running apps with standard params | Y         | Low      | Only LD_PRELOAD/DBI
 System benchmarks                 | Y         | Low      | Y
-Distro boot                       | Y         | Low (need manual actions to increase) | LD_PRELOAD-only
+Distro boot                       | Y         | Low (need manual actions to increase) | Only LD_PRELOAD/DBI
 
 ---
 
@@ -263,15 +302,15 @@ Increasing fuzzing speed and efficiency (coverage) by various means
 
 # Trends (2)
 
-Increasing adoption in community:
-  * inspire project owners to write fuzzing for their projects through initiatives like [oss-fuzz](https://github.com/google/oss-fuzz)
+Increasing fuzzing adoption in community:
+  * inspire project owners to write fuzzing for their projects through initiatives like [OSS-fuzz](https://github.com/google/oss-fuzz)
   * bug bounty programs e.g. [Google Fuzzilli](https://portswigger.net/daily-swig/google-launches-fuzzilli-grant-program-to-boost-js-engine-fuzzing-research)
 
 ---
 
 # Links
 
-* [Runtime Verificaton conference](https://runtime-verification.github.io] ([Springer](https://link.springer.com/conference/rv))
+* [Runtime Verification conference](https://runtime-verification.github.io] ([Springer](https://link.springer.com/conference/rv))
   * Too scientific
   * Most papers are on verifying temporal logic assertions at runtime
 * More practical: vulnerability reports
