@@ -5,7 +5,13 @@ Cheatsheets:
   * SSReflect: http://www-sop.inria.fr/teams/marelle/advanced-coq-17/cheatsheet.pdf
 
 Reductions:
-  * eta: replace "\ x -> f x" with "f"
+  * eta: replace `fun x -> f x` with `f`
   * beta: application
-  * delta: apply primitive functions (+, etc.)
-  * iota: expand pattern matches, lets, etc.
+  * delta: apply primitive functions (`+`, etc.)
+  * iota: expand `match`es, `let`s, etc.
+
+Searching:
+  * `Search (_ + _)` - searches in types.
+  * `Search "or_assoc"` - searches in names/types.
+  * `Locate "_ + _"` - searches in notations.
+  * `About or_assoc` - print type.
