@@ -1,0 +1,9 @@
+Cheatsheets:
+  * vanilla Coq: https://www.cs.cornell.edu/courses/cs3110/2018sp/a5/coq-tactics-cheatsheet.html
+  * SSReflect: http://www-sop.inria.fr/teams/marelle/advanced-coq-17/cheatsheet.pdf
+
+Reductions:
+  * eta: replace "\ x -> f x" with "f"
+  * beta: application
+  * delta: apply primitive functions (+, etc.)
+  * iota: expand pattern matches, lets, etc.
