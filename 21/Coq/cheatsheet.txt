@@ -1,5 +1,7 @@
 Cheatsheets:
-  * vanilla Coq: https://www.cs.cornell.edu/courses/cs3110/2018sp/a5/coq-tactics-cheatsheet.html
+  * vanilla Coq:
+    * https://www.cs.cornell.edu/courses/cs3110/2018sp/a5/coq-tactics-cheatsheet.html
+    * https://www.inf.ed.ac.uk/teaching/courses/tspl/cheatsheet.pdf
   * SSReflect: http://www-sop.inria.fr/teams/marelle/advanced-coq-17/cheatsheet.pdf
 
 Reductions:
