@@ -2,7 +2,9 @@ Cheatsheets:
   * vanilla Coq:
     * https://www.cs.cornell.edu/courses/cs3110/2018sp/a5/coq-tactics-cheatsheet.html
     * https://www.inf.ed.ac.uk/teaching/courses/tspl/cheatsheet.pdf
-  * SSReflect: http://www-sop.inria.fr/teams/marelle/advanced-coq-17/cheatsheet.pdf
+  * SSReflect:
+    * http://www-sop.inria.fr/teams/marelle/advanced-coq-17/cheatsheet.pdf
+    * http://www.lix.polytechnique.fr/~lengrand/SSFT2018/aux/cheat1.pdf
 
 Reductions:
   * eta: replace `fun x -> f x` with `f`
@@ -12,6 +14,10 @@ Reductions:
 
 Searching:
   * `Search (_ + _)` - searches in types.
-  * `Search "or_assoc"` - searches in names/types.
+  * `Search "or_assoc"` - searches in names.
   * `Locate "_ + _"` - searches in notations.
   * `About or_assoc` - print type.
+
+Coq Russia:
+  * CS club: Anton Podkopaev
+  * CS club: Anton Trunov
