@@ -243,7 +243,7 @@ Run-time instrumentation types:
   * without params, with `--help`, with `--version`
   * automatic but coverage is low
 * System-level instrumentation
-  * run system benchmarks (e.g. [Phoronix suite](https://www.phoronix-test-suite.com))
+  * run system benchmarks (e.g. [Phoronix suite](https://www.phoronix-test-suite.com) or [browser testsuites](https://firefox-source-docs.mozilla.org/testing/testing-policy/index.html))
   * manual work and coverage is still low
 
 ---
