@@ -212,8 +212,9 @@ Link-time instrumentation:
 
 # Instrumentation taxonomy: run-time
 
-* Run-time instrumentation types:
+Run-time instrumentation types:
   * `LD_PRELOAD`-based (e.g. [ElectricFence](https://elinux.org/Electric_Fence), [sortchecker](https://github.com/yugr/sortcheck), [failing-malloc](https://github.com/yugr/failing-malloc))
+    * `LD_PRELOAD` is a native Linux way to implement [aspect-oriented programming](https://en.wikipedia.org/wiki/Aspect-oriented_programming)
   * syscall instrumentation (e.g. [SystemTap](https://sourceware.org/systemtap/wiki))
   * dynamic binary instrumentation (aka DBI, e.g. [Valgrind](https://www.valgrind.org), [DynamoRIO](https://dynamorio.org) or [Intel Ping](https://software.intel.com/content/www/us/en/develop/articles/pin-a-dynamic-binary-instrumentation-tool.html))
 
