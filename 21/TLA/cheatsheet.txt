@@ -1,0 +1,2 @@
+Cheatsheets:
+  * https://lamport.azurewebsites.net/tla/summary.pdf
