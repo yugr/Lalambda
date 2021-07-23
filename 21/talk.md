@@ -25,8 +25,8 @@ Y. Gribov, Samsung Advanced Institute of Technology
 
 # Something about the author
 
-* www.github.com/yugr
-* PL @ Samsung Moscow
+* https://www.github.com/yugr
+* Teamlead @ Samsung Moscow
 * Accidentally became a compiler writer 15 years ago
   * In-house, GCC, LLVM, neurocompilers (also some HPC and gamedev)
 * Passionate about verification in general and dynamic/static analyses in particular
@@ -37,8 +37,9 @@ Y. Gribov, Samsung Advanced Institute of Technology
 
 # Disclaimer
 
+* A big picture overview without delving into details of particular checkers or technologies
+* Engineering focus
 * C/C++-focused (although ideas are generally applicable)
-* Gives big picture overview without delving into details
 
 ---
 
@@ -59,7 +60,7 @@ Y. Gribov, Samsung Advanced Institute of Technology
 * Solved via
   * fuzzing
   * rule/grammar-based input generators
-  * A/B testing (in production environments)
+  * A/B testing (in production environments like Google services)
 
 ---
 
@@ -70,7 +71,7 @@ Y. Gribov, Samsung Advanced Institute of Technology
 * Library sanity checks (e.g. Glibc `malloc` internal checks)
 * Valgrind
 * Sanitizers (Asan, UBsan, Msan, Tsan, etc.)
-* "Business rules" (e.g. GDPR, data minimization)
+* "Business rules" (GDPR, data minimization, etc.)
 
 ---
 
@@ -86,7 +87,7 @@ Y. Gribov, Samsung Advanced Institute of Technology
   * grew out of model checking in 2000-s ([Runtime Verification - 17 Years Later](http://www.havelund.com/Publications/rv-2018-test-of-time.pdf))
   * apply complex modal logic formulas to program traces
   * often applied to interesting niche projects
-* Engineering camp
+* Engineering camp (hackers and corporations)
   * automatically detect bugs at large scale (without manual work by user)
   * much older (malloc debuggers existed at least since 80-s)
   * typically much more influential
@@ -123,8 +124,9 @@ The "instrumentation" part:
 # Creating new checkers: coverage
 
 The "test corpus" part: find ways to significantly increase coverage by extending test corpus
-  * via clever fuzzing
-    * e.g. [AFL](https://lcamtuf.coredump.cx/afl/) revolutionized fuzzing by taking code coverage into account
+  * via clever fuzzing:
+    * concolic (e.g. [Microsoft SAGE](https://queue.acm.org/detail.cfm?id=2094081) or [Mayhem](https://forallsecure.com))
+    * feedback-driven (e.g. [AFL](https://lcamtuf.coredump.cx/afl/))
   * by developing generator for sufficiently important class of data
     * e.g. [Defensics](https://www.synopsys.com/software-integrity/security-testing/fuzz-testing.html) supports grammar-based test generation for [250+ protocols](https://www.synopsys.com/software-integrity/security-testing/fuzz-testing/defensics.html)
     * e.g. [Csmith](https://embed.cs.utah.edu/csmith) generates random C++ code for compiler testing
@@ -173,9 +175,12 @@ The "test corpus" part: find ways to significantly increase coverage by extendin
 
 # Instrumentation taxonomy
 
+* Aka [aspect-oriented programming](https://en.wikipedia.org/wiki/Aspect-oriented_programming)
 * Runtime verification is trivial in languages like Python or Java
-  * Full access to AST at runtime
-* Checkers for native code are categorized by stage in compilation pipeline and mechanism used for instrumentation
+  * full access to AST at runtime
+  * many AOP frameworks
+* Instrumentations of native code are categorized by stage in compilation pipeline and mechanism used for instrumentation
+  * compromise between simplicity of implementation/integration and level-of-details
 
 ---
 
@@ -205,7 +210,7 @@ The "test corpus" part: find ways to significantly increase coverage by extendin
 
 Link-time instrumentation:
   * replacing normal code with "checking" implementations at link time
-  * e.g. via `-Wl,--defsym,malloc=my_safe_malloc`
+  * e.g. via `-Wl,--defsym,malloc=my_safe_malloc` or `-Wl,--wrap=malloc`
   * e.g. [\_malloc_dbg](https://docs.microsoft.com/en-us/cpp/c-runtime-library/reference/malloc-dbg?view=msvc-160) replaces normal `malloc` if user links against debug version of Microsoft runtime
 
 ---
@@ -214,7 +219,7 @@ Link-time instrumentation:
 
 Run-time instrumentation types:
   * `LD_PRELOAD`-based (e.g. [ElectricFence](https://elinux.org/Electric_Fence), [sortchecker](https://github.com/yugr/sortcheck), [failing-malloc](https://github.com/yugr/failing-malloc))
-    * `LD_PRELOAD` is a native Linux way to implement [aspect-oriented programming](https://en.wikipedia.org/wiki/Aspect-oriented_programming)
+    * `LD_PRELOAD` is the easiest way to implement AOP on Linux
   * syscall instrumentation (e.g. [SystemTap](https://sourceware.org/systemtap/wiki))
   * dynamic binary instrumentation (aka DBI, e.g. [Valgrind](https://www.valgrind.org), [DynamoRIO](https://dynamorio.org) or [Intel Ping](https://software.intel.com/content/www/us/en/develop/articles/pin-a-dynamic-binary-instrumentation-tool.html))
 
@@ -227,7 +232,7 @@ Run-time instrumentation types:
   * run builtin unittests
   * manual work: tiresome and demotivating
   * to find interesting package faster:
-    * [popularity rating](https://popcon.debian.org/by_vote)
+    * [package popularity rating](https://popcon.debian.org/by_vote)
     * [Debian codesearch](https://codesearch.debian.net)
 
 ---
@@ -318,8 +323,7 @@ Increasing fuzzing adoption in community:
   * [CVE reports](https://www.openwall.com/lists/oss-security)
   * [DEFCON](https://www.defcon.org/images/defcon-15)
   * [Blackhat](https://www.blackhat.com)
-
-TODO: confirm with surveys
+  * [Phrack](https://phrack.org)
 
 ---
 
