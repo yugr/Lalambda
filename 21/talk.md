@@ -167,7 +167,7 @@ The "test corpus" part: find ways to significantly increase coverage by extendin
 * Violation of "business rules":
   * very application specific
   * specifications are extracted from domain experts, architects, QA, etc.
-  * [Industrial Experiences with Runtime Verification](https://www.youtube.com/watch?v=Un5pJVqjUK0)
+  * [Runtime Verification, from Theory to Practice and Back](https://www.youtube.com/watch?v=Vyz6kte4PVk) and [Industrial Experiences with Runtime Verification](https://www.youtube.com/watch?v=Un5pJVqjUK0)
 
 ---
 
@@ -323,6 +323,8 @@ TODO: confirm with surveys
 ---
 
 # The End
+
+Copy of slides is available at https://github.com/yugr/Lalambda/blob/master/21/talk.md
 
 Please share your ideas on runtime verification!
   * tetra2005 beim gmail punct com
