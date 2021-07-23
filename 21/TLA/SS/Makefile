@@ -12,7 +12,7 @@ all: $(LOGS)
 
 out/%.log: %.tla
 	mkdir -p `dirname $@`
-	time ./tlc $^ 2>&1 | tee $@
+	time ../tlc $^ 2>&1 | tee $@
 
 clean:
 	rm -rf out states

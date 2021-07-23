@@ -13,7 +13,7 @@ for arg in "$@"; do
 done
 set -- $args
 
-jar=$PWD/tla2tools.jar
+jar=$(dirname $0)/tla2tools.jar
 if test $(uname -o) = Cygwin; then
   jar=$(cygpath -w $jar)
 fi
