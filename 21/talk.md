@@ -19,17 +19,18 @@ footer {
 
 Y. Gribov, Samsung Advanced Institute of Technology
 
-[Lalambda '21](https://github.com/yugr/Lalambda/tree/master/21)
+[Lalambda '21](https://lalambda.school)
 
 ---
 
-# Something about the author
+# About the author
 
-* https://www.github.com/yugr
 * Teamlead @ Samsung Moscow
 * Accidentally became a compiler writer 15 years ago
   * In-house, GCC, LLVM, neurocompilers (also some HPC and gamedev)
 * Passionate about verification in general and dynamic/static analyses in particular
+  * GitHub [yugr](https://www.github.com/yugr)
+  * Habr [the_real_yugr](https://habr.com/ru/users/the_real_yugr/)
 
 ![bg right:33% 80%](https://avatars.githubusercontent.com/u/1101391?v=4)
 
@@ -68,7 +69,7 @@ Y. Gribov, Samsung Advanced Institute of Technology
 
 * Virtual memory :)
 * C/C++ assertions in programs
-* Library sanity checks (e.g. Glibc `malloc` internal checks)
+* Library sanity checks (e.g. Glibc `malloc` or libstdc++ iterator internal checks)
 * Valgrind
 * Sanitizers (Asan, UBsan, Msan, Tsan, etc.)
 * "Business rules" (GDPR, data minimization, etc.)
@@ -94,6 +95,32 @@ Y. Gribov, Samsung Advanced Institute of Technology
 
 ---
 
+# Dynamic analysis algorithm
+
+```python
+errors = {}
+program_with_monitor = instrument(program, spec)
+while test_corpus not empty:
+  test_input = test_corpus.pop()
+  errors, coverage, ... += program_with_monitor(test_input)
+  update test_corpus
+```
+
+---
+
+# Dynamic analysis algorithm
+
+```python
+errors = {}
+program_with_monitor = >>>instrument<<<(program, >>>spec<<<)
+while test_corpus not empty:
+  test_input = test_corpus.pop()
+  errors, coverage, ... += program_with_monitor(test_input)
+  >>>update test_corpus<<<
+```
+
+---
+
 # Ontology of dynamic analysis project
 
 Runtime analysis project contains of three main "parts":
@@ -116,7 +143,7 @@ The "spec" part:
 # Creating new checkers: instrumentation
 
 The "instrumentation" part:
-  * develop new ways to detect more errors from the same spec more efficiently
+  * for an existing spec, develop new ways to detect more errors more efficiently
   * e.g. there were many buffer overflow checkers before [Asan](https://clang.llvm.org/docs/AddressSanitizer.html) but too slow or with limited coverage
 
 ---
@@ -219,7 +246,7 @@ Link-time instrumentation:
 
 Run-time instrumentation types:
   * `LD_PRELOAD`-based (e.g. [ElectricFence](https://elinux.org/Electric_Fence), [sortchecker](https://github.com/yugr/sortcheck), [failing-malloc](https://github.com/yugr/failing-malloc))
-    * `LD_PRELOAD` is the easiest way to implement AOP on Linux
+    * `LD_PRELOAD` is a canonical way to implement AOP on Linux
   * syscall instrumentation (e.g. [SystemTap](https://sourceware.org/systemtap/wiki))
   * dynamic binary instrumentation (aka DBI, e.g. [Valgrind](https://www.valgrind.org), [DynamoRIO](https://dynamorio.org) or [Intel Ping](https://software.intel.com/content/www/us/en/develop/articles/pin-a-dynamic-binary-instrumentation-tool.html))
 
@@ -316,7 +343,7 @@ Increasing fuzzing adoption in community:
 
 # Links
 
-* [Runtime Verification conference](https://runtime-verification.github.io] ([Springer](https://link.springer.com/conference/rv))
+* [Runtime Verification conference](https://runtime-verification.github.io) ([Springer](https://link.springer.com/conference/rv))
   * Too scientific
   * Most papers are on verifying temporal logic assertions at runtime
 * More practical: vulnerability reports
@@ -333,9 +360,8 @@ Copy of slides is available at https://github.com/yugr/Lalambda/blob/master/21/t
 
 Please share your ideas on runtime verification!
   * tetra2005 beim gmail punct com
-  * TG @the_real_yugr
+  * TG https://t.me/the_real_yugr
   * GH [yugr](https://www.github.com/yugr)
-  * Habr [the_real_yugr](https://habr.com/ru/users/the_real_yugr/)
 
 ---
 
