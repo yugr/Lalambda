@@ -48,6 +48,7 @@ Y. Gribov, Samsung Advanced Institute of Technology
 
 * Runtime verification aka dynamic analysis
 * Instrumentation of programs to verify invariants (safety, performance, etc.)
+  * verifying code is called a "monitor"
 * (Much) more widely used in industry than static tools:
   * no false positives
   * reprocases easily available
@@ -95,6 +96,17 @@ Y. Gribov, Samsung Advanced Institute of Technology
 
 ---
 
+# Ontology of dynamic analysis project
+
+Runtime analysis project contains of three main "parts":
+  * spec: an invariant that we want to check
+  * instrumentation (aka monitor): a way to verify that invariant is preserved during execution
+  * test corpus: input data which we run the checker through
+
+New successful checkers are created by innovating in any of the three components.
+
+---
+
 # Dynamic analysis algorithm
 
 ```python
@@ -118,17 +130,6 @@ while test_corpus not empty:
   errors, coverage, ... += program_with_monitor(test_input)
   >>>update test_corpus<<<
 ```
-
----
-
-# Ontology of dynamic analysis project
-
-Runtime analysis project contains of three main "parts":
-  * spec: an invariant that we want to check
-  * instrumentation (aka monitor): a way to verify that invariant is preserved during execution
-  * test corpus: input data which we run the checker through
-
-New successful checkers are created by innovating in any of the three components.
 
 ---
 
