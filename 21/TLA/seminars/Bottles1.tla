@@ -2,26 +2,32 @@
 
 EXTENDS Naturals
 VARIABLES a, b
-CONSTANTS A, B
+CONSTANTS A, B, goal
 
 ----
 
 TypeInvariant == /\ a <= A
                  /\ b <= B
 
-InterestingProperty == /\ a # 1
-                       /\ b # 1
+\* We need 'goal' in one of the bottles
+NotGoal == /\ a # goal
+           /\ b # goal
 
-Invariant == TypeInvariant /\ InterestingProperty
+Invariant == TypeInvariant /\ NotGoal
+
+----
+
+Max(x, y) == IF x > y THEN x ELSE y
+Min(x, y) == IF x < y THEN x ELSE y
 
 ----
 
 Init == a = 0 /\ b = 0
 
-FillA == /\ a' = A
+FullA == /\ a' = A
          /\ UNCHANGED b
 
-FillB == /\ b' = B
+FullB == /\ b' = B
          /\ UNCHANGED a
 
 EmptyA == /\ a' = 0
@@ -30,13 +36,18 @@ EmptyA == /\ a' = 0
 EmptyB == /\ b' = 0
           /\ UNCHANGED a
 
-AtoB == /\ b' = IF a + b <= B THEN a + b ELSE B
-        /\ a' = IF a + b <= B THEN 0 ELSE a - (B - b)
+AtoB == /\ b' = Min(a + b, B)
+        /\ a' = Max(0, a - (B - b))
 
-BtoA == /\ a' = IF a + b <= A THEN a + b ELSE A
-        /\ b' = IF a + b <= A THEN 0 ELSE b - (A - a)
+BtoA == /\ a' = Min(a + b, A)
+        /\ b' = Max(0, b - (A - a))
 
-Next == FillA \/ FillB \/ EmptyA \/ EmptyB \/ AtoB \/ BtoA
+Next == \/ FullA
+        \/ FullB
+        \/ EmptyA
+        \/ EmptyB
+        \/ AtoB
+        \/ BtoA
 
 Spec == Init /\ [][Next]_<<a, b>>
 
