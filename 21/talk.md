@@ -363,6 +363,7 @@ Please share your ideas on runtime verification!
   * tetra2005 beim gmail punct com
   * TG https://t.me/the_real_yugr
   * GH [yugr](https://www.github.com/yugr)
+  * LinkedIn [yugr](https://www.linkedin.com/in/yugr/)
 
 ---
 
