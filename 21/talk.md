@@ -17,7 +17,7 @@ footer {
 
 (aka Dynamic Analysis)
 
-Y. Gribov, Samsung Advanced Institute of Technology
+Yuri Gribov, Samsung Advanced Institute of Technology
 
 [Lalambda '21](https://lalambda.school)
 
@@ -47,7 +47,8 @@ Y. Gribov, Samsung Advanced Institute of Technology
 # Overview
 
 * Runtime verification aka dynamic analysis
-* Instrumentation of programs to verify invariants (safety, performance, etc.)
+* Instrumentation of programs to verify behavioral invariants at runtime
+  * safety, performance, etc.
   * verifying code is called a "monitor"
 * (Much) more widely used in industry than static tools:
   * no false positives
@@ -66,11 +67,12 @@ Y. Gribov, Samsung Advanced Institute of Technology
 
 ---
 
-# Example analyses
+# Example analyses (TODO)
 
 * Virtual memory :)
-* C/C++ assertions in programs
-* Library sanity checks (e.g. Glibc `malloc` or libstdc++ iterator internal checks)
+* Sanity checks in code
+  * e.g. C/C++ assertions in programs
+  * e.g. Glibc `malloc` or libstdc++ iterator internal checks
 * Valgrind
 * Sanitizers (Asan, UBsan, Msan, Tsan, etc.)
 * "Business rules" (GDPR, data minimization, etc.)
@@ -85,25 +87,14 @@ Y. Gribov, Samsung Advanced Institute of Technology
 }
 </style>
 
-* Scientific camp ([Runtime Verification conference](https://runtime-verification.github.io))
+* Academia ([Runtime Verification conference](https://runtime-verification.github.io))
   * grew out of model checking in 2000-s ([Runtime Verification - 17 Years Later](http://www.havelund.com/Publications/rv-2018-test-of-time.pdf))
-  * apply complex modal logic formulas to program traces
-  * often applied to interesting niche projects
-* Engineering camp (hackers and corporations)
+  * verify complex modal logic formulas on program traces
+  * usually applied to interesting but niche projects
+* Industry (hackers and corporations)
   * automatically detect bugs at large scale (without manual work by user)
   * much older (malloc debuggers existed at least since 80-s)
   * typically much more influential
-
----
-
-# Ontology of dynamic analysis project
-
-Runtime analysis project contains of three main "parts":
-  * spec: an invariant that we want to check
-  * instrumentation (aka monitor): a way to verify that invariant is preserved during execution
-  * test corpus: input data which we run the checker through
-
-New successful checkers are created by innovating in any of the three components.
 
 ---
 
@@ -133,41 +124,33 @@ while test_corpus not empty:
 
 ---
 
+# Ontology of dynamic analysis project
+
+Runtime analysis tool ("checker") contains of three main "parts":
+  * spec: an invariant that we want to check
+  * instrumentation (aka monitor): a way to verify that invariant is preserved during execution
+  * test corpus: input data which we run the checker through
+
+New successful checkers are created by innovating in any of the three components.
+
+---
+
 # Creating new checkers: spec
 
 The "spec" part:
-  * come up with a new class of bugs and propose method to autodetect them
+  * come up with a new interesting class of bugs and propose method to autodetect them
+  * most interesting classes already handled :(
   * e.g. [Sortchecker](https://github.com/yugr/sortcheck)) was the first tool to check [qsort axioms](https://lists.llvm.org/pipermail/llvm-dev/2016-January/093835.html)
-
----
-
-# Creating new checkers: instrumentation
-
-The "instrumentation" part:
-  * for an existing spec, develop new ways to detect more errors more efficiently
-  * e.g. there were many buffer overflow checkers before [Asan](https://clang.llvm.org/docs/AddressSanitizer.html) but too slow or with limited coverage
-
----
-
-# Creating new checkers: coverage
-
-The "test corpus" part: find ways to significantly increase coverage by extending test corpus
-  * via clever fuzzing:
-    * concolic (e.g. [Microsoft SAGE](https://queue.acm.org/detail.cfm?id=2094081) or [Mayhem](https://forallsecure.com))
-    * feedback-driven (e.g. [AFL](https://lcamtuf.coredump.cx/afl/))
-  * by developing generator for sufficiently important class of data
-    * e.g. [Defensics](https://www.synopsys.com/software-integrity/security-testing/fuzz-testing.html) supports grammar-based test generation for [250+ protocols](https://www.synopsys.com/software-integrity/security-testing/fuzz-testing/defensics.html)
-    * e.g. [Csmith](https://embed.cs.utah.edu/csmith) generates random C++ code for compiler testing
 
 ---
 
 # Spec taxonomy (1)
 
 * Memory errors ([Asan](https://clang.llvm.org/docs/AddressSanitizer.html)/[Msan](https://clang.llvm.org/docs/MemorySanitizer.html), [Valgrind](https://www.valgrind.org)):
-  * liveness errors: accessing after end-of-life (UAR, UAF, iterator invalidation)
+  * liveness errors: accessing after end-of-life (use-after-free, use-after-return, iterator invalidation)
   * buffer overflow: heap, global, stack
   * Uninitialized memory
-* Typing errors:
+* Typing errors (in non-type safe languages like C)
   * aliasing violations ([TypeSanitizer](http://llvm.org/devmtg/2017-10/slides/Finkel-The%20Type%20Sanitizer.pdf))
   * mismatched types ([libcrunch](https://github.com/stephenrkell/libcrunch))
 
@@ -201,25 +184,34 @@ The "test corpus" part: find ways to significantly increase coverage by extendin
 
 ---
 
+# Creating new checkers: instrumentation
+
+The "instrumentation" part:
+  * for an existing spec, develop new ways to detect more errors more efficiently
+  * often determine whether checker will be used
+  * e.g. there were many buffer overflow checkers before [AddressSanitizer](https://clang.llvm.org/docs/AddressSanitizer.html) but too slow or with limited coverage
+
+---
+
 # Instrumentation taxonomy
 
-* Aka [aspect-oriented programming](https://en.wikipedia.org/wiki/Aspect-oriented_programming)
+* Aka [aspect-oriented programming](https://en.wikipedia.org/wiki/Aspect-oriented_programming) (AOP)
 * Runtime verification is trivial in languages like Python or Java
   * full access to AST at runtime
   * many AOP frameworks
 * Instrumentations of native code are categorized by stage in compilation pipeline and mechanism used for instrumentation
-  * compromise between simplicity of implementation/integration and level-of-details
+  * compromise between simplicity of implementation/integration and desired level of detail
 
 ---
 
 # Instrumentation taxonomy: preprocess-time
 
 * Code can be instrumented by forced inclusion of debug header
-  * e.g. via `-include mycheker.h`
-  * header would contain something like `#define malloc my_safe_malloc` 
+  * e.g. via `-include mychecker.h`
+  * header would contain something like `#define malloc my_safe_malloc`
 * Examples:
   * [dmalloc](https://dmalloc.com)
-  * [_FORTIFY_SOURCE](https://access.redhat.com/blogs/766093/posts/1976213)
+  * [Glibc _FORTIFY_SOURCE](https://access.redhat.com/blogs/766093/posts/1976213)
 
 ---
 
@@ -228,9 +220,9 @@ The "test corpus" part: find ways to significantly increase coverage by extendin
 * Compile-time instrumentation:
   * source-to-source (e.g. [libcrunch](https://github.com/stephenrkell/libcrunch))
     * traditionally done via [CIL](https://github.com/cil-project/cil) but it's C only :(
-    * [Clang LibTooling](https://clang.llvm.org/docs/LibTooling.html) supports C++ but is complicated to use due to overdetailed AST
+    * [Clang LibTooling](https://clang.llvm.org/docs/LibTooling.html) supports C++ but is complicated to use due to baroque AST
   * codegen-based (e.g. [Asan](https://clang.llvm.org/docs/AddressSanitizer.html) or [DirtyPad](https://github.com/yugr/DirtyPad))
-  * asm-based (e.g. [DirtyFrame](https://github.com/yugr/DirtyFrame) or [AFL](https://github.com/google/AFL/blob/master/afl-as.c))
+  * asm-based (e.g. [AFL](https://github.com/google/AFL/blob/master/afl-as.c) or [DirtyFrame](https://github.com/yugr/DirtyFrame))
 
 ---
 
@@ -250,6 +242,26 @@ Run-time instrumentation types:
     * `LD_PRELOAD` is a canonical way to implement AOP on Linux
   * syscall instrumentation (e.g. [SystemTap](https://sourceware.org/systemtap/wiki))
   * dynamic binary instrumentation (aka DBI, e.g. [Valgrind](https://www.valgrind.org), [DynamoRIO](https://dynamorio.org) or [Intel Ping](https://software.intel.com/content/www/us/en/develop/articles/pin-a-dynamic-binary-instrumentation-tool.html))
+
+---
+
+# Creating new checkers: test corpus
+
+<style scoped>
+{
+  font-size: 200%
+}
+</style>
+
+* Project testsuites provide insufficient code coverage
+* Need to extend test corpus by generating new tests:
+  * via fuzzing:
+    * random (e.g. [zzuf](https://github.com/samhocevar/zzuf))
+    * feedback-driven (e.g. [AFL](https://lcamtuf.coredump.cx/afl))
+    * concolic (e.g. [Microsoft SAGE](https://queue.acm.org/detail.cfm?id=2094081) or [Mayhem](https://forallsecure.com))
+  * by developing generator for sufficiently important class of data
+    * e.g. [Defensics](https://www.synopsys.com/software-integrity/security-testing/fuzz-testing.html) supports grammar-based test generation for [250+ protocols](https://www.synopsys.com/software-integrity/security-testing/fuzz-testing/defensics.html)
+    * e.g. [Csmith](https://embed.cs.utah.edu/csmith) generates random C++ code for compiler testing
 
 ---
 
@@ -363,7 +375,6 @@ Please share your ideas on runtime verification!
   * tetra2005 beim gmail punct com
   * TG https://t.me/the_real_yugr
   * GH [yugr](https://www.github.com/yugr)
-  * LinkedIn [yugr](https://www.linkedin.com/in/yugr/)
 
 ---
 
