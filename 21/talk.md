@@ -265,35 +265,35 @@ Run-time instrumentation types:
 
 ---
 
-# How to test a checker (1)
+# How to test a checker
 
 * Once checker is ready you'll want to test it on as much code as you can
-* Manually apply checker to important OSS projects (archivers, media processing libraries, browsers, etc.)
-  * run builtin unittests
-  * manual work: tiresome and demotivating
+* Try to apply it to important OSS projects
+  * archivers, media processing libraries, browsers, etc.
   * to find interesting package faster:
     * [package popularity rating](https://popcon.debian.org/by_vote)
-    * [Debian codesearch](https://codesearch.debian.net)
+    * [Debian codesearch](https://codesearch.debian.net) (supports both web and cmdline interfaces)
+
+# How to test an LD\_PRELOAD- or DBI-based checker
+
+* Checkers which do not require program recompilation are easier to test:
+  * boot complete Linux distro with your checker preloaded
+    * for example [valgrind-preload](https://github.com/yugr/valgrind-preload)
+    * limited applicability
+    * need to perform manual actions to explore system behavior
+  * Run all apps in `/bin` and `/usr/bin`
+    * without params, with `--help`, with `--version`
+    * automatic but coverage is low (only tests initialization code, at best)
 
 ---
 
-# How to test a checker (2)
+# How to test an arbitrary checker
 
-* Run all apps in `/bin` and `/usr/bin`
-  * without params, with `--help`, with `--version`
-  * automatic but coverage is low
-* System-level instrumentation
+* Run package unittests (if available)
+  * manual work: tiresome and demotivating :(
+* System testsuites
   * run system benchmarks (e.g. [Phoronix suite](https://www.phoronix-test-suite.com) or [browser testsuites](https://firefox-source-docs.mozilla.org/testing/testing-policy/index.html))
-  * manual work and coverage is still low
-
----
-
-# How to test a checker (3)
-
-* For `LD_PRELOAD`- or DBI-based checkers: boot complete Linux distro with your checker preloaded
-  * for example [valgrind-preload](https://github.com/yugr/valgrind-preload)
-  * limited applicability
-  * need to perform manual actions to explore system behavior
+  * manual work as well...
 
 ---
 
@@ -307,16 +307,15 @@ table {
 
 Test                              | Automatic | Coverage | All checkers
 ----------------------------------|-----------|----------|-------------
-Manual package testing            | N         | High     | Y
 Running apps with standard params | Y         | Low      | Only LD_PRELOAD/DBI
-System benchmarks                 | Y         | Low      | Y
 Distro boot                       | Y         | Low (need manual actions to increase) | Only LD_PRELOAD/DBI
+Manual package testing            | N         | High     | Y
+System testsuites                 | Y         | Low      | Y
 
 ---
 
 # Using distro build systems
 
-* Ideal solution is package unittests but it requires manual work
 * Linux distros come with a vast number of packages
 * Distro build systems can be reused
   * to apply checkers under the hood
@@ -349,6 +348,7 @@ Increasing fuzzing speed and efficiency (coverage) by various means
 # Trends (2)
 
 Increasing fuzzing adoption in community:
+  * integration of fuzzers into development lifecycles (kudos to @msh_smlv)
   * inspire project owners to write fuzzing for their projects through initiatives like [OSS-fuzz](https://github.com/google/oss-fuzz)
   * bug bounty programs e.g. [Google Fuzzilli](https://portswigger.net/daily-swig/google-launches-fuzzilli-grant-program-to-boost-js-engine-fuzzing-research)
 
@@ -367,13 +367,25 @@ Increasing fuzzing adoption in community:
 
 ---
 
+# Advertisement
+
+Samsung System-On-Chip team is hiring developers
+to develop state-of-the-art compilers in Moscow Research Center:
+  * NPU Compiler Developer for Exynos AI Accelerator (https://hh.ru/vacancy/42341825)
+
+Also need GPU performance engineers, whatever that means (https://hh.ru/vacancy/44907512).
+
+---
+
 # The End
 
-Copy of slides is available at https://github.com/yugr/Lalambda/blob/master/21/talk.md
+This presentation is available at
+  * (slides https://github.com/yugr/Lalambda/blob/master/21/talk.md
+  * (practice) https://github.com/yugr/Lalambda/blob/master/21/practice.md
 
-Please share your ideas on runtime verification!
+Please share your ideas on runtime verification (new checkers, novel ways to test them, etc.):
   * tetra2005 beim gmail punct com
-  * TG https://t.me/the_real_yugr
+  * TG [the_real_yugr](https://t.me/the_real_yugr)
   * GH [yugr](https://www.github.com/yugr)
 
 ---
