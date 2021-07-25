@@ -59,7 +59,7 @@ M, x |= [] p <=> \forall y \in R(x), M, y |= p
 3) F |= p -> []<>p <=> \forall x y \in W, xRy -> yRx (симметричность шкалы)
 4) F |= <>T <=> \forall x \in W, \exists y \in W xRy (сериальность шкалы)
 5) F |= []\bot <=> R пусто
-6) F |= <>p -> <><>p <=> \forall x y \in W, xRy -> \exists z \in W xRzRy (плотность, монотонность шкалы)
+6) F |= <>p -> <><>p <=> \forall x y \in W, xRy -> \exists z \in W xRzRy (плотность шкалы)
 7) F |= <>p \/ <>q <-> <>(p \/ q)
 8) F |= <>\bot <-> \bot
 9) F |= \phi -> \psi => F |= <>\phi -> <>\psi
