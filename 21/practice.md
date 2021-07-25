@@ -34,7 +34,6 @@ at https://docs.docker.com/engine/install/ubuntu/
 To avoid the need to run Docker commands with `sudo`, run
 ```
 $ sudo usermod -aG docker $USER
-$ newgrp docker
 ```
 and restart Docker service (or just restart the machine).
 
@@ -348,7 +347,7 @@ Weird, most tests passed. What's going on?
 The clever testwrapper overrides our `LD_PRELOAD`:
 ```
 # grep -rC1 LD_PRELOAD
-est/runwrapper-if [ -e "$PWD/.libs/libtestlookup.so" ]; then
+test/runwrapper-if [ -e "$PWD/.libs/libtestlookup.so" ]; then
 test/runwrapper:	export LD_PRELOAD="$PWD/.libs/libtestlookup.so"
 test/runwrapper-fi
 ```
@@ -430,7 +429,7 @@ Now we can install failing-malloc integration
 ```
 and apply it to acl package:
 ```
-$ ./test_pkgs --pbuilder acl
+# ./test_pkgs --pbuilder acl
 ...
 ============================================================================
 Testsuite summary for acl 2.2.53
@@ -453,7 +452,7 @@ failing-malloc reports, syslog and build log
 to `test_pkgs.1/acl` folder. We can make sure
 that expected bugs have been found:
 ```
-$ cat test_pkgs.1/acl/output/failingmalloc.log
+# cat test_pkgs.1/acl/output/failingmalloc.log
 failingmalloc: intercepting malloc in '/build/acl-2.2.53/.libs/setfacl -m u:bin:rw f'
 failingmalloc: intercepting malloc in '/build/acl-2.2.53/.libs/setfacl -m u:bin:rw f' (fail after 0 allocs)
 failingmalloc: returning NULL from malloc in '/build/acl-2.2.53/.libs/setfacl -m u:bin:rw f'
