@@ -42,6 +42,11 @@ Yuri Gribov, Samsung Advanced Institute of Technology
 * Engineering focus
 * C/C++-focused (although ideas are generally applicable)
 
+This presentation is available at
+  * (slides https://github.com/yugr/Lalambda/blob/master/21/talk.md
+  * (practice) https://github.com/yugr/Lalambda/blob/master/21/practice.md
+
+
 ---
 
 # Overview
@@ -274,7 +279,15 @@ Run-time instrumentation types:
     * [package popularity rating](https://popcon.debian.org/by_vote)
     * [Debian codesearch](https://codesearch.debian.net) (supports both web and cmdline interfaces)
 
+---
+
 # How to test an LD\_PRELOAD- or DBI-based checker
+
+<style scoped>
+{
+  font-size: 200%
+}
+</style>
 
 * Checkers which do not require program recompilation are easier to test:
   * boot complete Linux distro with your checker preloaded
@@ -283,7 +296,7 @@ Run-time instrumentation types:
     * need to perform manual actions to explore system behavior
   * Run all apps in `/bin` and `/usr/bin`
     * without params, with `--help`, with `--version`
-    * automatic but coverage is low (only tests initialization code, at best)
+    * automatic but coverage is low (tests initialization code, at best)
 
 ---
 
@@ -378,10 +391,6 @@ Also need GPU performance engineers, whatever that means (https://hh.ru/vacancy/
 ---
 
 # The End
-
-This presentation is available at
-  * (slides https://github.com/yugr/Lalambda/blob/master/21/talk.md
-  * (practice) https://github.com/yugr/Lalambda/blob/master/21/practice.md
 
 Please share your ideas on runtime verification (new checkers, novel ways to test them, etc.):
   * tetra2005 beim gmail punct com
