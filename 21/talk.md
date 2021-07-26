@@ -258,7 +258,7 @@ Run-time instrumentation types:
   * via fuzzing:
     * random (e.g. [zzuf](https://github.com/samhocevar/zzuf))
     * feedback-driven (e.g. [AFL](https://lcamtuf.coredump.cx/afl))
-    * concolic (e.g. [Microsoft SAGE](https://queue.acm.org/detail.cfm?id=2094081) or [Mayhem](https://forallsecure.com))
+    * concolic (e.g. [Microsoft SAGE](https://queue.acm.org/detail.cfm?id=2094081), [Mayhem](https://forallsecure.com), [KLEE](https://klee.github.io/))
   * by developing generator for sufficiently important class of data
     * e.g. [Defensics](https://www.synopsys.com/software-integrity/security-testing/fuzz-testing.html) supports grammar-based test generation for [250+ protocols](https://www.synopsys.com/software-integrity/security-testing/fuzz-testing/defensics.html)
     * e.g. [Csmith](https://embed.cs.utah.edu/csmith) generates random C++ code for compiler testing
@@ -339,7 +339,7 @@ System testsuites                 | Y         | Low      | Y
 Increasing fuzzing speed and efficiency (coverage) by various means
   * feedback-driven ("grey-box")
     * [AFL](https://lcamtuf.coredump.cx/afl/) and related tools (gofuzz, libfuzzer, etc.)
-  * analysis-driven ("white-box")
+  * symex-driven ("white-box")
     * [Billions and Billions of Constraints: Whitebox Fuzz Testing in Production](https://www.microsoft.com/en-us/research/wp-content/uploads/2016/02/main-may10.pdf)
   * various combinations thereof
 
