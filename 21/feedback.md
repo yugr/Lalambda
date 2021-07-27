@@ -5,9 +5,11 @@ What was missing:
   * no video recording
   * no freezbee (AAAAAAARGH)
   * some lectures were missing in "Методички" page (https://drive.google.com/drive/folders/1NSJlC6F0OmPBOZC47QAiWRIS4NF5pXSA)
+  * no lectures on separation logic
 
 What caused problems:
   * volatile schedule
     * schedule in Google doc was constantly changing without notice
     * schedule in Google doc didn't match the schedule in Google calendar
     * my talk has been removed despite confirming with organizers the day before
+  * few people knew how to setup/reboot camera which caused lecture startup delays
