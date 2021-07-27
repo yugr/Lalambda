@@ -1,0 +1,56 @@
+# Pruvendo (Andrew Lyashin)
+
+* Verification of smart contracts
+  * correctness alone is usually not interesting
+* 2 years before first investor (lots of talks)
+* Member of Free TON community
+* Verifying incomplete stack (e.g. not VM)
+
+Gotchas:
+  * working ad-hoc solution is better than abstract/complete one
+    => science will _always_ be ahead
+    => do not chase latest greatest technology
+       (e.g. decided to avoid separation logic for simplicity)
+    => do not struggle for fully algebraic solutions from start,
+       they'll come naturally later
+  * but unable to predict architecture for longer period
+    => plan to change architecture in future
+       (avoid rigid data structures, use polymorphism/typeclasses/modules/libs/etc.)
+    => base decisions on science (yes, you need to read papers), existing solutions, customer needs
+  * some people are better at adapting new technology, use this
+    * try solve the hardest part in limited time (1 day, 1 week)
+    * if failed, research, re-decompose and retry
+  * proove main theorem first
+    (yes, you need strong intuition to select top-level proof strategy)
+  * need common slang and good names for readable proofs
+
+Business goals:
+  * scalability (grow team as demand grows)
+    => avoid rocket science in technology stack
+  * automation (reliability + save leader's energy, prefer "programs that write programs")
+    => need to find ways to avoid repetitions in long proofs
+    => CI helps (simplify porting to new versions of Coq)
+
+Size problem:
+  * proof of 1 KLOC project may require 100 KLOC Coq proof
+  * compilation takes hours or days
+  * timing is short (3m, 6m)
+  => separate definitions and proofs for modular compilation
+  => save prebuilt proofs in CI artifacts
+
+Programming:
+  * reduce number of frameworks (hard to support with small team)
+  * avoid number of unstable library deps
+  * use Coq for programming infra (generators, etc.)
+
+Questions:
+  * standartization in std. programming (code style, definition of done, environment)
+    Q: Something like this for proofs?
+    A: No, as long as lemma is prooved noone needs to ready the proof.
+       Need good syntax for specification though.
+  * reprooving after contract is updated:
+    Q: Does the problem exist?
+    A: Yes, it's a problem. Function semantics is usually ok and scenarios are only added.
+       To avoid risk of architecture changes we do audit of contract before starting to proove.
+    Q: How long incremental proofs take?
+    A: N/A
