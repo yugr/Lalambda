@@ -57,8 +57,8 @@ This presentation is available at
   * verifying code is called a "monitor"
 * (Much) more widely used in industry than static tools:
   * no false positives
-  * reprocases easily available
   * no scalability problems
+  * reprocases easily available
 
 ---
 
@@ -72,7 +72,7 @@ This presentation is available at
 
 ---
 
-# Example analyses (TODO)
+# Example analyses
 
 * Virtual memory :)
 * Sanity checks in code
@@ -154,7 +154,8 @@ The "spec" part:
 * Memory errors ([Asan](https://clang.llvm.org/docs/AddressSanitizer.html)/[Msan](https://clang.llvm.org/docs/MemorySanitizer.html), [Valgrind](https://www.valgrind.org)):
   * liveness errors: accessing after end-of-life (use-after-free, use-after-return, iterator invalidation)
   * buffer overflow: heap, global, stack
-  * Uninitialized memory
+  * uninitialized memory
+  * memory leaks
 * Typing errors (in non-type safe languages like C)
   * aliasing violations ([TypeSanitizer](http://llvm.org/devmtg/2017-10/slides/Finkel-The%20Type%20Sanitizer.pdf))
   * mismatched types ([libcrunch](https://github.com/stephenrkell/libcrunch))
@@ -164,7 +165,7 @@ The "spec" part:
 # Spec taxonomy (2)
 
 * Parallel programming errors (Tsan):
-  * deadlocks and races
+  * deadlocks and data races
 * Language-specific errors:
   * integer overflows ([UBsan](https://clang.llvm.org/docs/UndefinedBehaviorSanitizer.html))
   * static init order fiasco ([Asan](https://clang.llvm.org/docs/AddressSanitizer.html)
@@ -307,6 +308,8 @@ Run-time instrumentation types:
 * System testsuites
   * run system benchmarks (e.g. [Phoronix suite](https://www.phoronix-test-suite.com) or [browser testsuites](https://firefox-source-docs.mozilla.org/testing/testing-policy/index.html))
   * manual work as well...
+* Instrument complete Linux distro (e.g. [sanitize Tizen](https://cppconf-moscow.ru/en/2020/msk/talks/5vznqvo0nspfblz2ba3e4w/))
+  * extremely hard...
 
 ---
 
