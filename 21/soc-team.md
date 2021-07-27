@@ -27,18 +27,23 @@ footer {
 
 ---
 
-# Достижения
+# Достижения (1)
 
 * Разработка двух поколений компилятора для нейросетевого ускорителя (в high-end-телефонах Samsung Galaxy)
   * [Ускоряем нейросеть на уровне железа: интервью с разработчиком компиляторов](https://habr.com/ru/company/samsung/blog/549006/)
 * Поддержка фронтенда OpenACC в компиляторе GCC
+* Разработка компилятора для DSP-процессоров
+  * [DSP-процессоры: назначение и особенности](https://habr.com/ru/company/samsung/blog/564282/)
+
+---
+
+# Достижения (2)
+
+* Поддержка межмодульного анализа в Clang Static Analyzer
+  * [2016 LLVM Developers' Meeting: A. Sidorin "Summary-based inter-unit analysis for CSA](https://www.youtube.com/watch?v=jbLkZ82mYE4)
 * Поддержка новых фич в AddressSanitizer LLVM и GCC (continue-after-error, порт на ARM, etc.)
   * [GCC devmeeting 2017: Applying GNU GCC Address Sanitizer to whole Linux distribution](https://slideslive.com/38902439/applying-gnu-gcc-address-sanitizer-to-whole-linux-distribution)
   * [GCC devmeeting 2019: Annotating std::string with AddressSanitizer](https://gcc.gnu.org/wiki/cauldron2019#cauldron2019talks.Annotating_std_string_with_AddressSanitizer)
-* Разработка компилятора для DSP-процессоров
-  * [DSP-процессоры: назначение и особенности](https://habr.com/ru/company/samsung/blog/564282/)
-* Поддержка межмодульного анализа в Clang Static Analyzer
-  * [2016 LLVM Developers' Meeting: A. Sidorin "Summary-based inter-unit analysis for CSA](https://www.youtube.com/watch?v=jbLkZ82mYE4)
 
 ---
 
