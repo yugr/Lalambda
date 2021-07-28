@@ -9,7 +9,7 @@ What was missing:
   * preparatory courses were not recorded
   * no freezbee (AAAAAAARGH)
   * some lectures were missing in "Методички" page (https://drive.google.com/drive/folders/1NSJlC6F0OmPBOZC47QAiWRIS4NF5pXSA)
-  * no lectures on separation logic
+  * no lectures on separation logic and SMT-solvers
   * a crib with a list needed stuff (e.g. cups)
   * calendar events lacked links to corresponding materials (abstracts, etc.)
 
