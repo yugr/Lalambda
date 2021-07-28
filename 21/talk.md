@@ -43,7 +43,7 @@ Yuri Gribov, Samsung Advanced Institute of Technology
 * C/C++-focused (although ideas are generally applicable)
 
 This presentation is available at
-  * (slides https://github.com/yugr/Lalambda/blob/master/21/talk.md
+  * (slides) https://github.com/yugr/Lalambda/blob/master/21/talk.md
   * (practice) https://github.com/yugr/Lalambda/blob/master/21/practice.md
 
 
@@ -145,7 +145,7 @@ New successful checkers are created by innovating in any of the three components
 The "spec" part:
   * come up with a new interesting class of bugs and propose method to autodetect them
   * most interesting classes already handled :(
-  * e.g. [Sortchecker](https://github.com/yugr/sortcheck)) was the first tool to check [qsort axioms](https://lists.llvm.org/pipermail/llvm-dev/2016-January/093835.html)
+  * e.g. [Sortchecker](https://github.com/yugr/sortcheck) was the first tool to check [qsort axioms](https://lists.llvm.org/pipermail/llvm-dev/2016-January/093835.html)
 
 ---
 
@@ -168,7 +168,7 @@ The "spec" part:
   * deadlocks and data races
 * Language-specific errors:
   * integer overflows ([UBsan](https://clang.llvm.org/docs/UndefinedBehaviorSanitizer.html))
-  * static init order fiasco ([Asan](https://clang.llvm.org/docs/AddressSanitizer.html)
+  * static init order fiasco ([Asan](https://clang.llvm.org/docs/AddressSanitizer.html))
 
 ---
 
@@ -247,7 +247,7 @@ Run-time instrumentation types:
   * `LD_PRELOAD`-based (e.g. [ElectricFence](https://elinux.org/Electric_Fence), [sortchecker](https://github.com/yugr/sortcheck), [failing-malloc](https://github.com/yugr/failing-malloc))
     * `LD_PRELOAD` is a canonical way to implement AOP on Linux
   * syscall instrumentation (e.g. [SystemTap](https://sourceware.org/systemtap/wiki))
-  * dynamic binary instrumentation (aka DBI, e.g. [Valgrind](https://www.valgrind.org), [DynamoRIO](https://dynamorio.org) or [Intel Ping](https://software.intel.com/content/www/us/en/develop/articles/pin-a-dynamic-binary-instrumentation-tool.html))
+  * dynamic binary instrumentation (aka DBI, e.g. [Valgrind](https://www.valgrind.org), [DynamoRIO](https://dynamorio.org) or [Intel Pin](https://software.intel.com/content/www/us/en/develop/articles/pin-a-dynamic-binary-instrumentation-tool.html))
 
 ---
 
