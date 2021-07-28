@@ -262,8 +262,8 @@ Run-time instrumentation types:
 * Project testsuites provide insufficient code coverage
 * Need to extend test corpus by generating new tests:
   * via fuzzing:
-    * random (e.g. [zzuf](https://github.com/samhocevar/zzuf))
-    * feedback-driven (e.g. [AFL](https://lcamtuf.coredump.cx/afl))
+    * random (e.g. [Radamsa](https://gitlab.com/akihe/radamsa), [zzuf](https://github.com/samhocevar/zzuf))
+    * feedback-driven (e.g. [AFL](https://lcamtuf.coredump.cx/afl), [libFuzzer](https://llvm.org/docs/LibFuzzer.html))
     * concolic (e.g. [Microsoft SAGE](https://queue.acm.org/detail.cfm?id=2094081), [Mayhem](https://forallsecure.com), [KLEE](https://klee.github.io/))
   * by developing generator for sufficiently important class of data
     * e.g. [Defensics](https://www.synopsys.com/software-integrity/security-testing/fuzz-testing.html) supports grammar-based test generation for [250+ protocols](https://www.synopsys.com/software-integrity/security-testing/fuzz-testing/defensics.html)
@@ -291,23 +291,23 @@ Run-time instrumentation types:
 </style>
 
 * Checkers which do not require program recompilation are easier to test:
+  * Run all apps in `/bin` and `/usr/bin`
+    * without params, with `--help`, with `--version`
+    * automatic but coverage is low (tests initialization code, at best)
   * boot complete Linux distro with your checker preloaded
     * for example [valgrind-preload](https://github.com/yugr/valgrind-preload)
     * limited applicability
     * need to perform manual actions to explore system behavior
-  * Run all apps in `/bin` and `/usr/bin`
-    * without params, with `--help`, with `--version`
-    * automatic but coverage is low (tests initialization code, at best)
 
 ---
 
 # How to test an arbitrary checker
 
 * Run package unittests (if available)
-  * manual work: tiresome and demotivating :(
+  * good coverage but not scalable (5-30 minutes per package)
+  * tiresome and demotivating :(
 * System testsuites
   * run system benchmarks (e.g. [Phoronix suite](https://www.phoronix-test-suite.com) or [browser testsuites](https://firefox-source-docs.mozilla.org/testing/testing-policy/index.html))
-  * manual work as well...
 * Instrument complete Linux distro (e.g. [sanitize Tizen](https://cppconf-moscow.ru/en/2020/msk/talks/5vznqvo0nspfblz2ba3e4w/))
   * extremely hard...
 
@@ -323,10 +323,10 @@ table {
 
 Test                              | Automatic | Coverage | All checkers
 ----------------------------------|-----------|----------|-------------
-Running apps with standard params | Y         | Low      | Only LD_PRELOAD/DBI
-Distro boot                       | Y         | Low (need manual actions to increase) | Only LD_PRELOAD/DBI
+Running apps with standard params | Y         | Low      | Only LD\_PRELOAD/DBI
+System testsuites                 | Y         | Average  | Y
 Manual package testing            | N         | High     | Y
-System testsuites                 | Y         | Low      | Y
+Distro boot                       | iff LD\_PRELOAD/DBI | Average (need manual actions to increase) | Y
 
 ---
 
@@ -343,7 +343,7 @@ System testsuites                 | Y         | Low      | Y
 
 # debian_pkg_test
 
-* With some hacking we can make Debian build system to run tests for us!
+* With some hacking we can make Debian build system to run unittests for us!
 * [debian_pkg_test](https://github.com/yugr/debian_pkg_test) project
   * based on [pbuilder](https://wiki.ubuntu.com/PbuilderHowto)
   * runs `make check` (or other standard test commands) once package build completes
@@ -355,7 +355,7 @@ System testsuites                 | Y         | Low      | Y
 Increasing fuzzing speed and efficiency (coverage) by various means
   * feedback-driven ("grey-box")
     * [AFL](https://lcamtuf.coredump.cx/afl/) and related tools (gofuzz, libfuzzer, etc.)
-  * symex-driven ("white-box")
+  * symexec-driven ("white-box")
     * [Billions and Billions of Constraints: Whitebox Fuzz Testing in Production](https://www.microsoft.com/en-us/research/wp-content/uploads/2016/02/main-may10.pdf)
   * various combinations thereof
 
@@ -364,7 +364,7 @@ Increasing fuzzing speed and efficiency (coverage) by various means
 # Trends (2)
 
 Increasing fuzzing adoption in community:
-  * integration of fuzzers into development lifecycles (kudos to @msh_smlv)
+  * integration of fuzzers into development lifecycles (kudos to @msh\_smlv)
   * inspire project owners to write fuzzing for their projects through initiatives like [OSS-fuzz](https://github.com/google/oss-fuzz)
   * bug bounty programs e.g. [Google Fuzzilli](https://portswigger.net/daily-swig/google-launches-fuzzilli-grant-program-to-boost-js-engine-fuzzing-research)
 
